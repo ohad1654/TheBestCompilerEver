@@ -1,0 +1,9 @@
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\VMtoASM.exe
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\VMtoASM.pdb
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\Boo.Lang.Useful.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\Boo.Lang.Compiler.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\Boo.Lang.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\bin\Debug\Boo.Lang.Parser.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\obj\Debug\VMtoASM.booprojResolveAssemblyReference.cache
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\obj\Debug\VMtoASM.exe
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\VMtoASM\obj\Debug\VMtoASM.pdb
