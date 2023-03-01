@@ -1,5 +1,5 @@
 ﻿namespace VMtoASM
-enum commandType:
+enum CommandType:
 	C_ARITHMETIC;
 	C_PUSH;
 	C_POP;

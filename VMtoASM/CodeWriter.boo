@@ -11,7 +11,7 @@ class CodeWriter:
 	public def writeArithmetic(command as string):
 		pass
 		
-	public def writePushPop(command, index as int):
+	public def writePushPop(command as CommandType, segment as string, index as int):
 		pass
 		
 	public def clode():

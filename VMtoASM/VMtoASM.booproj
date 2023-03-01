@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="CodeWriter.boo" />
+    <Compile Include="CommandType.boo" />
     <Compile Include="Parser.boo" />
     <Compile Include="Main.boo" />
   </ItemGroup>

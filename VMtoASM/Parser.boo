@@ -17,10 +17,10 @@ class Parser:
 	public def advance():
 		currentCommand = streamReader.ReadLine()
 		currentCommand = currentCommand.Trim()
-		args = line.Split(char(' '))
+		args = currentCommand.Split(char(' '))
 		
 	public def getCommandType():
-		pass
+		return CommandType.C_PUSH
 		
 	public def getArg1():
 		return ""
