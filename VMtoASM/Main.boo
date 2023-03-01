@@ -2,9 +2,12 @@
 
 import System
 
-print "Hello, World!"
+print "-----------------------------"
+print "Hellllllllooooo!!!!!!!!"
+print "Welcome to Best compiler ever"
+print "-----------------------------"
 
-// TODO: Implement Functionality Here
-
-print "Press any key to continue . . . "
+fileName = ""
+Parser parser = Parser(fileName)
+CodeWriter codeWriter = CodeWriter(fileName)
 Console.ReadKey(true)
