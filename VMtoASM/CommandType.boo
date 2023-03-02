@@ -8,5 +8,6 @@ enum CommandType:
 	C_IF;
 	C_FUNCTION;
 	C_RETURN;
-	C_CALL
+	C_CALL;
+	COMMENT
 	

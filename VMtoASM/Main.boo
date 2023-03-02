@@ -12,29 +12,29 @@ def main():
 	print "Hellllllllooooo!!!!!!!!"
 	print "Welcome to Best compiler ever"
 	print "-----------------------------"
-	
-	fileName = ""
-
-	//CodeWriter codeWriter = CodeWriter(fileName)
-	
-	print "filename: "
-	path = Console.ReadLine()
+	print "Enter path to directory please: "
+	path = "C:\\Users\\adadi\\Desktop\\SimpleAdd" //Console.ReadLine()
 	d = DirectoryInfo(path); 
 	Files = d.GetFiles("*.vm"); //Getting vm files
-	folderName = Path.GetFileName(path)
+	folderName = d.ToString() // --Path.GetFileName(path)
 	
 	for file in Files:
-		fileName = file.Name
-		parser = Parser(fileName)
-		codeWriter = CodeWriter(changeExt(fileName, ".asm"))
+		fullPathToFile = file.FullName
+		print fullPathToFile
+		parser = Parser(fullPathToFile)
+		//codeWriter = CodeWriter(changeExt(fileName, ".asm"))
 		while(parser.hasMoreLines()):
 			parser.advance()
 			type = parser.getCommandType()
-			if(type == CommandType.C_ARITHMETIC):
-				codeWriter.writeArithmetic(parser.getArg1())
+			if(type == CommandType.COMMENT):
+				print("COMMMENT LINE...")
+			elif(type == CommandType.C_ARITHMETIC):
+				print type + ": " + parser.getArg1()
+				//codeWriter.writeArithmetic(parser.getArg1())
 			elif(type in [CommandType.C_POP,CommandType.C_PUSH]):
-				codeWriter.writePushPop(type,parser.getArg1(),parser.getArg2())
-		
+				print type + ": "+parser.getArg1()+", " + parser.getArg2()
+				//codeWriter.writePushPop(type,parser.getArg1(),parser.getArg2())
+			
 					
 main()
 print "Press any key to countinue..."
