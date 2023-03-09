@@ -5,6 +5,7 @@ import System.IO
 
 class Parser:
 """Description of Parser"""
+	ARITHEMETIC_COMMANDS = ["add","sub","neg","eq","gt","lt","and","or","not"]
 	streamReader as StreamReader
 	currentCommand = ""
 	commandType as CommandType
@@ -28,7 +29,7 @@ class Parser:
 		//set commandType
 		if(args[0] == "//"):
 			commandType = CommandType.COMMENT
-		elif(args[0] in ["add","sub"]):
+		elif(args[0] in ARITHEMETIC_COMMANDS):
 			commandType = CommandType.C_ARITHMETIC
 		elif(args[0] == "push"):
 				commandType = CommandType.C_PUSH
@@ -36,6 +37,10 @@ class Parser:
 			commandType = CommandType.C_POP	
 		elif(args[0] == "if"):
 			commandType = CommandType.C_IF
+		elif(args[0] == ""):
+			commandType = CommandType.WHITELINE
+		else:
+			raise "Unknown command Type: " + currentCommand
 		
 		//set arg1 and arg2
 		arg1 = ""

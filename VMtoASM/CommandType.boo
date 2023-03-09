@@ -9,5 +9,6 @@ enum CommandType:
 	C_FUNCTION;
 	C_RETURN;
 	C_CALL;
-	COMMENT
+	COMMENT;
+	WHITELINE
 	

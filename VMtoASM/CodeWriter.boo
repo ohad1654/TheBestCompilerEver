@@ -8,11 +8,39 @@ class CodeWriter:
 	outputFile as StreamWriter
 	className as string
 	public def constructor(fileName as string):
-		self.outputFile = StreamWriter(fileName)
+		self.outputFile = File.CreateText(fileName)
 		self.className = Path.GetFileNameWithoutExtension(fileName)
 
+	//This function writes an arithmetic command which takes
+	// x, y from the stack, makes a calculation on them, and push
+	//the result (=>In total, SP=SP-1)
 	public def writeArithmetic(command as string):
 		self.outputFile.WriteLine("// "+command)
+		if command == "add": //add first two args in the stack: x,y
+			//D=y
+			self.outputFile.WriteLine("@SP")
+			self.outputFile.WriteLine("A=M-1")
+			self.outputFile.WriteLine("D=M")
+			//calc sum
+			self.outputFile.WriteLine("A=A-1") // now M=x 
+			self.outputFile.WriteLine("M=M+D") // M = M + D
+			//we change the real value of sp because 
+			//"add" takes two args and puts one instead
+			self.outputFile.WriteLine("@SP")
+			self.outputFile.WriteLine("M=M-1")
+		elif command == "sub": //sub last two args in the stack: x,y
+			//D=y
+			self.outputFile.WriteLine("@SP")
+			self.outputFile.WriteLine("A=M-1")
+			self.outputFile.WriteLine("D=M")
+			//calc sum
+			self.outputFile.WriteLine("A=A-1") // now M=x 
+			self.outputFile.WriteLine("M=M-D") // M = M - D
+			//we change the real value of sp because 
+			//"add" takes two args and puts one instead
+			self.outputFile.WriteLine("@SP")
+			self.outputFile.WriteLine("M=M-1")
+		else: raise "CodeWriter: Unknown arithmetic command: " + command
 			
 	public def writePushPop(command as CommandType, segment as string, index as int):
 		self.outputFile.WriteLine("// "+command+" "+segment+" "+index)
@@ -44,14 +72,14 @@ class CodeWriter:
 			else:
 				raise "Unknown segment name: "+segment
 			//push D
-			self.outputFile.WriteLine("@sp")
+			self.outputFile.WriteLine("@SP")
 			self.outputFile.WriteLine("A = M")
 			self.outputFile.WriteLine("M = D")
-			self.outputFile.WriteLine("@sp")
+			self.outputFile.WriteLine("@SP")
 			self.outputFile.WriteLine("M = M + 1")
-
-				
 			
+		elif command == CommandType.C_POP:
+			pass
 		
 	public def close():
 		self.outputFile.Close()
@@ -68,7 +96,7 @@ class CodeWriter:
 	
 		if segment == "that":
 			return "THAT"
-		raise "Unknown segment name: "+segment
+		raise "CodeWriter: Unknown segment name: " + segment
 	
 	
 	private def loadSegmentToD(segment as string, i as int) as string:

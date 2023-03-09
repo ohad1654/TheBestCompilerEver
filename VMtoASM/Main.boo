@@ -4,8 +4,10 @@ import System
 import System.IO
 
 public def changeExt(oldFileName as string, newExt as string):
-	name = Path.GetFileNameWithoutExtension(oldFileName)
-	return name + newExt
+	pathWithoutFileName = Path.GetDirectoryName(oldFileName)
+	fileName = Path.GetFileNameWithoutExtension(oldFileName)
+	result = pathWithoutFileName + "\\" + fileName + newExt
+	return result
 
 def main():
 	print "-----------------------------"
@@ -16,13 +18,12 @@ def main():
 	path = "C:\\Users\\adadi\\Desktop\\SimpleAdd" //Console.ReadLine()
 	d = DirectoryInfo(path); 
 	Files = d.GetFiles("*.vm"); //Getting vm files
-	folderName = d.ToString() // --Path.GetFileName(path)
 	
 	for file in Files:
 		fullPathToFile = file.FullName
 		print fullPathToFile
 		parser = Parser(fullPathToFile)
-		//codeWriter = CodeWriter(changeExt(fileName, ".asm"))
+		codeWriter = CodeWriter(changeExt(fullPathToFile, ".asm"))
 		while(parser.hasMoreLines()):
 			parser.advance()
 			type = parser.getCommandType()
@@ -30,10 +31,11 @@ def main():
 				print("COMMMENT LINE...")
 			elif(type == CommandType.C_ARITHMETIC):
 				print type + ": " + parser.getArg1()
-				//codeWriter.writeArithmetic(parser.getArg1())
+				codeWriter.writeArithmetic(parser.getArg1())
 			elif(type in [CommandType.C_POP,CommandType.C_PUSH]):
 				print type + ": "+parser.getArg1()+", " + parser.getArg2()
-				//codeWriter.writePushPop(type,parser.getArg1(),parser.getArg2())
+				codeWriter.writePushPop(type,parser.getArg1(),parser.getArg2())
+		codeWriter.close()
 			
 					
 main()
