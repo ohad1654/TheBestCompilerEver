@@ -15,75 +15,129 @@ class CodeWriter:
 	// x, y from the stack, makes a calculation on them, and push
 	//the result (=>In total, SP=SP-1)
 	public def writeArithmetic(command as string):
-		self.outputFile.WriteLine("// "+command)
+		self.WriteLine("// "+command)
 		if command == "add": //add first two args in the stack: x,y
 			//D=y
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("A=M-1")
-			self.outputFile.WriteLine("D=M")
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("D=M")
 			//calc sum
-			self.outputFile.WriteLine("A=A-1") // now M=x 
-			self.outputFile.WriteLine("M=M+D") // M = M + D
+			self.WriteLine("A=A-1") // now M=x 
+			self.WriteLine("M=M+D") // M = M + D
 			//we change the real value of sp because 
 			//"add" takes two args and puts one instead
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("M=M-1")
+			self.WriteLine("@SP")
+			self.WriteLine("M=M-1")
 		elif command == "sub": //sub last two args in the stack: x,y
 			//D=y
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("A=M-1")
-			self.outputFile.WriteLine("D=M")
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("D=M")
 			//calc sum
-			self.outputFile.WriteLine("A=A-1") // now M=x 
-			self.outputFile.WriteLine("M=M-D") // M = M - D
+			self.WriteLine("A=A-1") // now M=x 
+			self.WriteLine("M=M-D") // M = M - D
 			//we change the real value of sp because 
 			//"add" takes two args and puts one instead
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("M=M-1")
+			self.WriteLine("@SP")
+			self.WriteLine("M=M-1")
 		else: raise "CodeWriter: Unknown arithmetic command: " + command
 			
 	public def writePushPop(command as CommandType, segment as string, index as int):
-		self.outputFile.WriteLine("// "+command+" "+segment+" "+index)
+		self.WriteLine("// "+command+" "+segment+" "+index)
 		if command==CommandType.C_PUSH:
 			if segment in ["local", "argument", "this", "that"]: //group 1
-				self.outputFile.Write(loadSegmentToD(segment,index)) // D = RAM[segment+index]
+				self.WriteLine(loadSegmentToAD(segment,index)) // A = segment+index
+				self.WriteLine("D = M") //D = RAM[segment+index]
 			
 			elif segment == "temp":	//group 2
-				self.outputFile.WriteLine("@5") //temp start (temp variables are saved on RAM[5-12])
-				self.outputFile.WriteLine("D = A")
-				self.outputFile.WriteLine("@"+index)
-				self.outputFile.WriteLine("A = A + D")
-				self.outputFile.WriteLine("D = M") //D = RAM[5+index]
+				self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
+				self.WriteLine("D = A")
+				self.WriteLine("@"+index)
+				self.WriteLine("A = A + D")
+				self.WriteLine("D = M") //D = RAM[5+index]
+				
 			elif segment == "static": //group 3
-				self.outputFile.WriteLine("@"+self.className+"."+index)
-				self.outputFile.WriteLine("D = M") //D = RAM[className.index]
+				self.WriteLine("@"+self.className+"."+index)
+				self.WriteLine("D = M") //D = RAM[className.index]
+				
 			elif segment == "pointer": //group 4
 				if index == 0:
-					self.outputFile.WriteLine("@THIS")					
-					self.outputFile.WriteLine("D = M") //D = RAM[THIS]
+					self.WriteLine("@THIS")					
+					self.WriteLine("D = M") //D = RAM[THIS]
 				elif index == 1:
-					self.outputFile.WriteLine("@THAT")					
-					self.outputFile.WriteLine("D = M") //D = RAM[THAT]
+					self.WriteLine("@THAT")					
+					self.WriteLine("D = M") //D = RAM[THAT]
 				else:
 					raise "Invalid index, index must be 0 or 1"
+				
 			elif segment == "constant": //group 5
-					self.outputFile.WriteLine("@"+index)
-					self.outputFile.WriteLine("D = A") //D = index
+					self.WriteLine("@"+index)
+					self.WriteLine("D = A") //D = index
 			else:
 				raise "Unknown segment name: "+segment
+			
 			//push D
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("A = M")
-			self.outputFile.WriteLine("M = D")
-			self.outputFile.WriteLine("@SP")
-			self.outputFile.WriteLine("M = M + 1")
+			self.WriteLine("@SP")
+			self.WriteLine("A = M")
+			self.WriteLine("M = D")
+			self.WriteLine("@SP")
+			self.WriteLine("M = M + 1")
 			
 		elif command == CommandType.C_POP:
-			pass
-		
+			//OVERVIEW:
+			//			1) Calculate the destantion addres in D.
+			//			2) store D at R13
+			//			3) Pop the value at the top at the stack and store it in the addres at R13.
+			
+			if segment in ["local", "argument", "this", "that"]: //group 1
+				self.WriteLine(loadSegmentToAD(segment,index)) // D = segment+index
+			
+			elif segment == "temp":	//group 2
+				self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
+				self.WriteLine("D = A")
+				self.WriteLine("@"+index)
+				self.WriteLine("D = A + D") // D = 5+index
+				
+			elif segment == "static": //group 3
+				self.WriteLine("@"+self.className+"."+index)
+				self.WriteLine("D = A") //D = className.index
+				
+			elif segment == "pointer": //group 4
+				if index == 0:
+					self.WriteLine("@THIS")					
+					self.WriteLine("D = A") //D = THIS
+				elif index == 1:
+					self.WriteLine("@THAT")					
+					self.WriteLine("D = A") //D = RAM[THAT]
+				else:
+					raise "Invalid index, index must be 0 or 1"
+
+				
+			elif segment == "constant": //group 5
+				raise "'constant' is not allowed after 'pop'"
+			else:
+				raise "Unknown segment name: "+segment
+			
+			self.WriteLine("@R13")
+			self.WriteLine("M = D") // store the dest address at R13
+			self.WriteLine("@SP")
+			self.WriteLine("M = M - 1") // decreas SP because pop..
+			self.WriteLine("A = M") 
+			self.WriteLine("D = M")  //D = value of the top argument of the stack
+			self.WriteLine("@R13")
+			self.WriteLine("A = M") // A = the destanenion address
+			self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 
+			
+			
+
 	public def close():
 		self.outputFile.Close()
 	
+	
+	
+	private def WriteLine(line as string):
+		self.outputFile.WriteLine(line)
+		
 	private def segmentToSymbol(segment as string) as string:
 		if segment == "local":
 			return "LCL"
@@ -99,12 +153,11 @@ class CodeWriter:
 		raise "CodeWriter: Unknown segment name: " + segment
 	
 	
-	private def loadSegmentToD(segment as string, i as int) as string:
-	"""load the value at segment[i] to D"""
+	private def loadSegmentToAD(segment as string, i as int) as string:
+	"""load the address of segment[i] to A"""
 		result = "@"+segmentToSymbol(segment)+"\n"
 		result += "D = M\n"
-		result += "@" + i + "\n"
-		result += "A = D + A\n" //A = segment + i
-		result += "D = M\n"
+		result += "@"+i+"\n"
+		result += "AD = D + A" //AD = segment + i
 		
 		return result
