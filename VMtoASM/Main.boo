@@ -15,7 +15,7 @@ def main():
 	print "Welcome to Best compiler ever"
 	print "-----------------------------"
 	print "Enter path to directory please: "
-	path = "C:\\Users\\adadi\\Desktop\\SimpleAdd" //Console.ReadLine()
+	path = Console.ReadLine()
 	d = DirectoryInfo(path); 
 	Files = d.GetFiles("*.vm"); //Getting vm files
 	

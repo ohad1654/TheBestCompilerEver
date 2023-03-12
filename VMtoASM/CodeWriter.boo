@@ -7,6 +7,7 @@ class CodeWriter:
 """Description of CodeWriter"""
 	outputFile as StreamWriter
 	className as string
+	labelCounter = 0
 	public def constructor(fileName as string):
 		self.outputFile = File.CreateText(fileName)
 		self.className = Path.GetFileNameWithoutExtension(fileName)
@@ -40,6 +41,39 @@ class CodeWriter:
 			//"add" takes two args and puts one instead
 			self.WriteLine("@SP")
 			self.WriteLine("M=M-1")
+		elif command == "neg": //
+			//D=x
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("M=-M")
+		elif command in ["eq","lt","gt"]:
+			//D=y
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("D=M")
+			//D=y-x
+			self.WriteLine("A=A-1")
+			self.WriteLine("D=D-M")
+			//jump to IFTRUE, if x equal y
+			self.WriteLine("@IFTRUE"+labelCounter)
+			self.WriteLine("D;"+self.relopToJump(command))
+			// in case x not equal y, push false (0)
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("A=A-1")//A->x
+			self.WriteLine("M=0")
+			self.WriteLine("@IF_FALSE"+labelCounter)
+			self.WriteLine("JMP")
+			self.WriteLine("(IF_TRUE" + labelCounter + ") //label")
+			self.WriteLine("@SP")
+			self.WriteLine("A=M-1")
+			self.WriteLine("A=A-1")
+			self.WriteLine("M=-1")
+			self.WriteLine("(IF_FALSE" + labelCounter + ") //label")
+			self.WriteLine("@SP")
+			self.WriteLine("M=M-1")
+			
+		
 		else: raise "CodeWriter: Unknown arithmetic command: " + command
 			
 	public def writePushPop(command as CommandType, segment as string, index as int):
@@ -159,5 +193,17 @@ class CodeWriter:
 		result += "D = M\n"
 		result += "@"+i+"\n"
 		result += "AD = D + A" //AD = segment + i
-		
+
 		return result
+	
+	private def relopToJump(relopType as string) as string:
+		if relopType == "eq":
+			return "JEQ"
+		if relopType == "lt":
+			return "JLT"
+		if relopType == "gt":
+			return "JGT"
+		raise "Invalid relop: "+relopType
+		
+		
+		
