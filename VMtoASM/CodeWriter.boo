@@ -2,7 +2,7 @@
 
 import System
 import System.IO
-		
+
 class CodeWriter:
 """Description of CodeWriter"""
 	outputFile as StreamWriter
@@ -41,6 +41,7 @@ class CodeWriter:
 			//"add" takes two args and puts one instead
 			self.WriteLine("@SP")
 			self.WriteLine("M=M-1")
+
 		elif command == "neg": //
 			//D=x
 			self.WriteLine("@SP")
@@ -74,7 +75,43 @@ class CodeWriter:
 			self.WriteLine("M=M-1")
 			
 		
+
+		elif command == "and":
+			//D=y
+			self.WriteLine("@SP")
+			self.WriteLine("A = M - 1")
+			self.WriteLine("D = M")
+			//calc OR
+			self.WriteLine("A = A - 1") // now M=x 
+			self.WriteLine("M = M & D") // M = M and D
+			//we change the real value of sp because 
+			//"add" takes two args and puts one instead
+			self.WriteLine("@SP")
+			self.WriteLine("M = M - 1")
+		elif command == "or":
+			//D=y
+			self.WriteLine("@SP")
+			self.WriteLine("A = M - 1")
+			self.WriteLine("D = M")
+			//calc OR
+			self.WriteLine("A = A - 1") // now M=x 
+			self.WriteLine("M = M | D") // M = M or D
+			//we change the real value of sp because 
+			//"add" takes two args and puts one instead
+			self.WriteLine("@SP")
+			self.WriteLine("M = M - 1")
+		elif command == "not":
+			self.WriteLine("@SP")
+			self.WriteLine("A = M - 1")
+			self.WriteLine("M = !M")
+			
+			
+			
+
 		else: raise "CodeWriter: Unknown arithmetic command: " + command
+		
+		
+		
 			
 	public def writePushPop(command as CommandType, segment as string, index as int):
 		self.WriteLine("// "+command+" "+segment+" "+index)
