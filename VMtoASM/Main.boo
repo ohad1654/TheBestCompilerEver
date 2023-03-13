@@ -32,9 +32,12 @@ def main():
 			elif(type == CommandType.C_ARITHMETIC):
 				print type + ": " + parser.getArg1()
 				codeWriter.writeArithmetic(parser.getArg1())
-			elif(type in [CommandType.C_POP,CommandType.C_PUSH]):
+			elif(type == CommandType.C_POP):
 				print type + ": "+parser.getArg1()+", " + parser.getArg2()
-				codeWriter.writePushPop(type,parser.getArg1(),parser.getArg2())
+				codeWriter.writePop(type,parser.getArg1(),parser.getArg2())
+			elif(type == CommandType.C_PUSH):
+				print type + ": "+parser.getArg1()+", " + parser.getArg2()
+				codeWriter.writePush(type,parser.getArg1(),parser.getArg2())
 		codeWriter.close()
 			
 					

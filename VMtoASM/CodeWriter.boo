@@ -7,199 +7,160 @@ class CodeWriter:
 """Description of CodeWriter"""
 	outputFile as StreamWriter
 	className as string
-	labelCounter = 0
+	private labelCounter = 0
+	
 	public def constructor(fileName as string):
 		self.outputFile = File.CreateText(fileName)
 		self.className = Path.GetFileNameWithoutExtension(fileName)
 
-	//This function writes an arithmetic command which takes
-	// x, y from the stack, makes a calculation on them, and push
-	//the result (=>In total, SP=SP-1)
+	
 	public def writeArithmetic(command as string):
-		self.WriteLine("// "+command)
-		if command == "add": //add first two args in the stack: x,y
-			//D=y
-			self.WriteLine("@SP")
-			self.WriteLine("A=M-1")
-			self.WriteLine("D=M")
-			//calc sum
-			self.WriteLine("A=A-1") // now M=x 
-			self.WriteLine("M=M+D") // M = M + D
-			//we change the real value of sp because 
-			//"add" takes two args and puts one instead
-			self.WriteLine("@SP")
-			self.WriteLine("M=M-1")
-		elif command == "sub": //sub last two args in the stack: x,y
-			//D=y
-			self.WriteLine("@SP")
-			self.WriteLine("A=M-1")
-			self.WriteLine("D=M")
-			//calc sum
-			self.WriteLine("A=A-1") // now M=x 
-			self.WriteLine("M=M-D") // M = M - D
-			//we change the real value of sp because 
-			//"add" takes two args and puts one instead
-			self.WriteLine("@SP")
-			self.WriteLine("M=M-1")
+	"""This function writes an arithmetic command which takes
+	   x, y or only y from the stack, makes a calculation on them, and push
+	   the result (=>In total, SP=SP-1)
+	 
+				 		|		| <--SP
+				 	 	|-------| 
+				    	|   y   |
+				    	|-------|
+				    	|   x   |
+				    	|-------|
+				    	|  ...  |
+				    	|_______|
+	 """
+		self.WriteLine("// "+command) //for debugging asm...
+		
+		// Binary Op - x = x <OP> y ;SP=SP-1
+		if command in ["add", "sub", "and","or"]:
+			self.WriteLine(self.popToD()) //pop y to D; D = y
+			//calc x <OP> y
+			self.WriteLine("A = A - 1") // now M = x 
+			self.WriteLine("M = M "+self.commandToOp(command)+" D") // M = M <OP> D
 
-		elif command == "neg": //
-			//D=x
+		
+		//Unary Op - only first arg in the stack: y = <OP>y ; SP=SP
+		elif command in ["neg", "not"]:  
 			self.WriteLine("@SP")
 			self.WriteLine("A=M-1")
-			self.WriteLine("M=-M")
+			self.WriteLine("M = "+self.commandToOp(command)+"M")// M = <OP>M
+			
+		
+		// Relational Op, first two args in the stack: x,y. Result is Boolean
 		elif command in ["eq","lt","gt"]:
-			//D=y
-			self.WriteLine("@SP")
-			self.WriteLine("A=M-1")
-			self.WriteLine("D=M")
-			//D=y-x
-			self.WriteLine("A=A-1")
-			self.WriteLine("D=D-M")
-			//jump to IFTRUE, if x equal y
-			self.WriteLine("@IFTRUE"+labelCounter)
-			self.WriteLine("D;"+self.relopToJump(command))
-			// in case x not equal y, push false (0)
-			self.WriteLine("@SP")
-			self.WriteLine("A=M-1")
-			self.WriteLine("A=A-1")//A->x
-			self.WriteLine("M=0")
-			self.WriteLine("@IF_FALSE"+labelCounter)
-			self.WriteLine("JMP")
-			self.WriteLine("(IF_TRUE" + labelCounter + ") //label")
-			self.WriteLine("@SP")
-			self.WriteLine("A=M-1")
-			self.WriteLine("A=A-1")
-			self.WriteLine("M=-1")
-			self.WriteLine("(IF_FALSE" + labelCounter + ") //label")
-			self.WriteLine("@SP")
-			self.WriteLine("M=M-1")
+			self.WriteLine(self.popToD()) //D = y; SP=SP-1 ; A = @SP
+			//D=x-y
+			self.WriteLine("A = A - 1") //A->x
+			self.WriteLine("D = M - D")
+			//jump to IF_TRUE, if x <RELOP> y 
+			self.WriteLine("@IF_TRUE"+labelCounter)//-----------┐
+			self.WriteLine("D;"+self.relopToJump(command))//    |
+			// in case x not <RELOP> y, push false (=0)         |
+			self.WriteLine("@SP")//                             |
+			self.WriteLine("A = M - 1")// A->x                  |
+			self.WriteLine("M=0")//                             |
+			self.WriteLine("@IF_FALSE"+labelCounter)//----------╂---┐
+			self.WriteLine("0;JMP")//                           |	|
+			//											  <-----┘	|
+			self.WriteLine("(IF_TRUE" + labelCounter + ")")//		|
+			//push true (=-1)										|
+			self.WriteLine("@SP")//									|
+			self.WriteLine("A = M - 1")// now M=x					|
+			self.WriteLine("M = -1")//								|
+			//											   <--------┘
+			self.WriteLine("(IF_FALSE" + labelCounter + ")")
 			
+			labelCounter+=1
+
+		else: 
+			raise "CodeWriter: Unknown arithmetic command: " + command
+		
+		
+		
+	public def writePush(command as CommandType, segment as string, index as int):
+		self.WriteLine("// "+command+" "+segment+" "+index) //for debugging asm...
 		
 
-		elif command == "and":
-			//D=y
-			self.WriteLine("@SP")
-			self.WriteLine("A = M - 1")
-			self.WriteLine("D = M")
-			//calc OR
-			self.WriteLine("A = A - 1") // now M=x 
-			self.WriteLine("M = M & D") // M = M and D
-			//we change the real value of sp because 
-			//"add" takes two args and puts one instead
-			self.WriteLine("@SP")
-			self.WriteLine("M = M - 1")
-		elif command == "or":
-			//D=y
-			self.WriteLine("@SP")
-			self.WriteLine("A = M - 1")
-			self.WriteLine("D = M")
-			//calc OR
-			self.WriteLine("A = A - 1") // now M=x 
-			self.WriteLine("M = M | D") // M = M or D
-			//we change the real value of sp because 
-			//"add" takes two args and puts one instead
-			self.WriteLine("@SP")
-			self.WriteLine("M = M - 1")
-		elif command == "not":
-			self.WriteLine("@SP")
-			self.WriteLine("A = M - 1")
-			self.WriteLine("M = !M")
-			
-			
-			
-
-		else: raise "CodeWriter: Unknown arithmetic command: " + command
+		if segment in ["local", "argument", "this", "that"]: //group 1
+			self.WriteLine(loadSegmentToAD(segment,index)) // A = segment+index
+			self.WriteLine("D = M") //D = RAM[segment+index]
 		
-		
-		
+		elif segment == "temp":	//group 2
+			self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
+			self.WriteLine("D = A")
+			self.WriteLine("@"+index)
+			self.WriteLine("A = A + D")
+			self.WriteLine("D = M") //D = RAM[5+index]
 			
-	public def writePushPop(command as CommandType, segment as string, index as int):
-		self.WriteLine("// "+command+" "+segment+" "+index)
-		if command==CommandType.C_PUSH:
-			if segment in ["local", "argument", "this", "that"]: //group 1
-				self.WriteLine(loadSegmentToAD(segment,index)) // A = segment+index
-				self.WriteLine("D = M") //D = RAM[segment+index]
+		elif segment == "static": //group 3
+			self.WriteLine("@"+self.className+"."+index)
+			self.WriteLine("D = M") //D = RAM[className.index]
 			
-			elif segment == "temp":	//group 2
-				self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
-				self.WriteLine("D = A")
-				self.WriteLine("@"+index)
-				self.WriteLine("A = A + D")
-				self.WriteLine("D = M") //D = RAM[5+index]
-				
-			elif segment == "static": //group 3
-				self.WriteLine("@"+self.className+"."+index)
-				self.WriteLine("D = M") //D = RAM[className.index]
-				
-			elif segment == "pointer": //group 4
-				if index == 0:
-					self.WriteLine("@THIS")					
-					self.WriteLine("D = M") //D = RAM[THIS]
-				elif index == 1:
-					self.WriteLine("@THAT")					
-					self.WriteLine("D = M") //D = RAM[THAT]
-				else:
-					raise "Invalid index, index must be 0 or 1"
-				
-			elif segment == "constant": //group 5
-					self.WriteLine("@"+index)
-					self.WriteLine("D = A") //D = index
+		elif segment == "pointer": //group 4
+			if index == 0:
+				self.WriteLine("@THIS")					
+				self.WriteLine("D = M") //D = RAM[THIS]
+			elif index == 1:
+				self.WriteLine("@THAT")					
+				self.WriteLine("D = M") //D = RAM[THAT]
 			else:
-				raise "Unknown segment name: "+segment
+				raise "Invalid index, index must be 0 or 1"
 			
-			//push D
-			self.WriteLine("@SP")
-			self.WriteLine("A = M")
-			self.WriteLine("M = D")
-			self.WriteLine("@SP")
-			self.WriteLine("M = M + 1")
-			
-		elif command == CommandType.C_POP:
-			//OVERVIEW:
-			//			1) Calculate the destantion addres in D.
-			//			2) store D at R13
-			//			3) Pop the value at the top at the stack and store it in the addres at R13.
-			
-			if segment in ["local", "argument", "this", "that"]: //group 1
-				self.WriteLine(loadSegmentToAD(segment,index)) // D = segment+index
-			
-			elif segment == "temp":	//group 2
-				self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
-				self.WriteLine("D = A")
+		elif segment == "constant": //group 5
 				self.WriteLine("@"+index)
-				self.WriteLine("D = A + D") // D = 5+index
-				
-			elif segment == "static": //group 3
-				self.WriteLine("@"+self.className+"."+index)
-				self.WriteLine("D = A") //D = className.index
-				
-			elif segment == "pointer": //group 4
-				if index == 0:
-					self.WriteLine("@THIS")					
-					self.WriteLine("D = A") //D = THIS
-				elif index == 1:
-					self.WriteLine("@THAT")					
-					self.WriteLine("D = A") //D = RAM[THAT]
-				else:
-					raise "Invalid index, index must be 0 or 1"
+				self.WriteLine("D = A") //D = index
+		else:
+			raise "Unknown segment name: "+segment
+		
+		//push D
+		self.WriteLine("@SP")
+		self.WriteLine("M = M + 1")
+		self.WriteLine("A = M - 1")
+		self.WriteLine("M = D")
 
-				
-			elif segment == "constant": //group 5
-				raise "'constant' is not allowed after 'pop'"
+			
+			
+	public def writePop(command as CommandType, segment as string, index as int):
+		self.WriteLine("// "+command+" "+segment+" "+index) //for debugging asm...
+		//OVERVIEW:
+		//			1) Calculate the destantion addres in and store it at R13.
+		//			2) Pop the value at the top at the stack and store it in the addres at R13.
+		
+		if segment in ["local", "argument", "this", "that"]: //group 1
+			self.WriteLine(loadSegmentToAD(segment,index)) // D = segment+index
+		
+		elif segment == "temp":	//group 2
+			self.WriteLine("@5") // 5=temp start (temp variables are saved on RAM[5-12])
+			self.WriteLine("D = A")
+			self.WriteLine("@"+index)
+			self.WriteLine("D = A + D") // D = 5+index
+			
+		elif segment == "static": //group 3
+			self.WriteLine("@"+self.className+"."+index)
+			self.WriteLine("D = A") //D = className.index
+			
+		elif segment == "pointer": //group 4
+			if index == 0:
+				self.WriteLine("@THIS")					
+				self.WriteLine("D = A") //D = THIS
+			elif index == 1:
+				self.WriteLine("@THAT")					
+				self.WriteLine("D = A") //D = RAM[THAT]
 			else:
-				raise "Unknown segment name: "+segment
+				raise "Invalid index, index must be 0 or 1"
+
 			
-			self.WriteLine("@R13")
-			self.WriteLine("M = D") // store the dest address at R13
-			self.WriteLine("@SP")
-			self.WriteLine("M = M - 1") // decreas SP because pop..
-			self.WriteLine("A = M") 
-			self.WriteLine("D = M")  //D = value of the top argument of the stack
-			self.WriteLine("@R13")
-			self.WriteLine("A = M") // A = the destanenion address
-			self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 
-			
-			
+		elif segment == "constant": //group 5
+			raise "'constant' is not allowed after 'pop'"
+		else:
+			raise "Unknown segment name: "+segment
+		
+		self.WriteLine("@R13")
+		self.WriteLine("M = D") // store the dest address at R13
+		self.WriteLine(self.popToD())//D = value of the top argument of the stack
+		self.WriteLine("@R13")
+		self.WriteLine("A = M") // A = the destanenion address
+		self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 		
+
 
 	public def close():
 		self.outputFile.Close()
@@ -225,7 +186,7 @@ class CodeWriter:
 	
 	
 	private def loadSegmentToAD(segment as string, i as int) as string:
-	"""load the address of segment[i] to A"""
+	"""load the address of segment[i] to AD"""
 		result = "@"+segmentToSymbol(segment)+"\n"
 		result += "D = M\n"
 		result += "@"+i+"\n"
@@ -233,7 +194,9 @@ class CodeWriter:
 
 		return result
 	
+
 	private def relopToJump(relopType as string) as string:
+	"""Convert command (eq, lt, gt) to jump hack command (JEQ, JLT, JGT)"""
 		if relopType == "eq":
 			return "JEQ"
 		if relopType == "lt":
@@ -243,4 +206,31 @@ class CodeWriter:
 		raise "Invalid relop: "+relopType
 		
 		
+
+	private def commandToOp(command as string) as string:
+	"""Convert command (add,sub,not etc.) to math operator (+, -, ! etc.)"""
+		if command == "add":
+			return "+"
+		if command == "sub":
+			return "-"
+		if command == "and":
+			return "&"
+		if command == "or":
+			return "|"
+		if command == "not":
+			return "!"
+		if command == "neg":
+			return "-"
+		raise "Invalid command: "+command		
+		
+		
+		
+	private def popToD() as string:
+	"""load the top arg of the stack to D; decrease SP, store at A the new SP"""
+		result= "@SP\n"
+		result+="M = M - 1\n" //decrease SP because pop...
+		result+="A = M\n"
+		result+="D = M"
+		
+		return result
 		
