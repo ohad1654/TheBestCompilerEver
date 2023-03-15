@@ -9,8 +9,8 @@ class Parser:
 	streamReader as StreamReader
 	currentCommand = ""
 	commandType as CommandType
-	arg1 = ""
-	arg2 = 0
+	arg1 as string
+	arg2 as int
 	
 	public def constructor(fileName as string):
 		self.streamReader = StreamReader(fileName)
@@ -32,11 +32,19 @@ class Parser:
 		elif(args[0] in ARITHEMETIC_COMMANDS):
 			commandType = CommandType.C_ARITHMETIC
 		elif(args[0] == "push"):
-				commandType = CommandType.C_PUSH
+			commandType = CommandType.C_PUSH
 		elif(args[0] == "pop"):
 			commandType = CommandType.C_POP	
 		elif(args[0] == "if"):
 			commandType = CommandType.C_IF
+		elif(args[0] == "label"):
+			commandType = CommandType.C_LABEL
+		elif(args[0] == "goto"):
+			commandType = CommandType.C_GOTO
+		elif(args[0] == "if-goto"):
+			commandType = CommandType.C_IF
+		elif(args[0] == "function"):
+			CommandType = CommandType.C_FUNCTION
 		elif(args[0] == ""):
 			commandType = CommandType.WHITELINE
 		else:
@@ -52,8 +60,8 @@ class Parser:
 			ok = int.TryParse(args[2],arg2)
 			if(not ok):
 				print "-----arg2 of the command: " + currentCommand + " is making troublesss"		
-		
-		
+		elif(commandType in [CommandType.C_LABEL ,CommandType.C_GOTO, CommandType.C_IF]): //
+			arg1 = args[1]
 			
 	public def getCommandType():
 		return commandType

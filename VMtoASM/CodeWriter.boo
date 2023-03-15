@@ -76,9 +76,8 @@ class CodeWriter:
 		
 		
 		
-	public def writePush(command as CommandType, segment as string, index as int):
-		self.WriteLine("// "+command+" "+segment+" "+index) //for debugging asm...
-		
+	public def writePush(segment as string, index as int):
+		self.WriteLine("// push"+" "+segment+" "+index) //for debugging asm...
 
 		if segment in ["local", "argument", "this", "that"]: //group 1
 			self.WriteLine(loadSegmentToAD(segment,index)) // A = segment+index
@@ -119,8 +118,8 @@ class CodeWriter:
 
 			
 			
-	public def writePop(command as CommandType, segment as string, index as int):
-		self.WriteLine("// "+command+" "+segment+" "+index) //for debugging asm...
+	public def writePop(segment as string, index as int):
+		self.WriteLine("// pop "+segment+" "+index) //for debugging asm...
 		//OVERVIEW:
 		//			1) Calculate the destantion addres in and store it at R13.
 		//			2) Pop the value at the top at the stack and store it in the addres at R13.
@@ -154,12 +153,44 @@ class CodeWriter:
 		else:
 			raise "Unknown segment name: "+segment
 		
-		self.WriteLine("@R13")
+		self.WriteLine("@R15")
 		self.WriteLine("M = D") // store the dest address at R13
 		self.WriteLine(self.popToD())//D = value of the top argument of the stack
-		self.WriteLine("@R13")
+		self.WriteLine("@R15")
 		self.WriteLine("A = M") // A = the destanenion address
 		self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 		
+
+
+	public def writeLabel(label as string, fileName as string):
+		self.WriteLine("// label:"+" "+label) //for debugging asm...
+		self.WriteLine("("+fileName + "." + label +")")
+
+
+	public def writeGoto(label as string, fileName as string):
+		self.WriteLine("// goto"+" "+label) //for debugging asm...
+		self.WriteLine("@"+fileName + "." + label)
+		self.WriteLine("0;JMP") 
+		
+	
+	public def writeIf(label as string, fileName as string):
+		self.WriteLine("// if-goto"+" "+label) //for debugging asm...
+		//pop topmost value
+		self.WriteLine("@SP")
+		self.WriteLine("M=M-1")
+		self.WriteLine("A=M")
+		self.WriteLine("D=M")
+		// Jump to label if not equal to 0
+		self.WriteLine("@" + fileName + "." + label)
+		self.WriteLine("D;JNE")
+	
+	
+	public def writeFunction(functionName as string, nVars as int):
+		self.WriteLine("// fuction "+ functionName + " "+nVars) //for debugging asm...
+		self.WriteLine("("+ functionName +")")
+		for(int i=0; i<nVars; i++):
+			self.WriteLine("init var " + i + "=0")
+			self.writePush("constant", 0)
+		pass
 
 
 	public def close():

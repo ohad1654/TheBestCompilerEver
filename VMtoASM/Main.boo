@@ -21,23 +21,32 @@ def main():
 	
 	for file in Files:
 		fullPathToFile = file.FullName
-		print fullPathToFile
+		fileName = Path.GetFileNameWithoutExtension(fullPathToFile)
 		parser = Parser(fullPathToFile)
 		codeWriter = CodeWriter(changeExt(fullPathToFile, ".asm"))
 		while(parser.hasMoreLines()):
 			parser.advance()
 			type = parser.getCommandType()
+			print type + ": "+parser.getArg1()+", " + parser.getArg2() 
 			if(type == CommandType.COMMENT):
-				print("COMMMENT LINE...")
+				pass
 			elif(type == CommandType.C_ARITHMETIC):
-				print type + ": " + parser.getArg1()
+				//print type + ": " + parser.getArg1()
 				codeWriter.writeArithmetic(parser.getArg1())
 			elif(type == CommandType.C_POP):
-				print type + ": "+parser.getArg1()+", " + parser.getArg2()
-				codeWriter.writePop(type,parser.getArg1(),parser.getArg2())
+				//print type + ": "+parser.getArg1()+", " + parser.getArg2()
+				codeWriter.writePop(parser.getArg1(),parser.getArg2())
 			elif(type == CommandType.C_PUSH):
-				print type + ": "+parser.getArg1()+", " + parser.getArg2()
-				codeWriter.writePush(type,parser.getArg1(),parser.getArg2())
+				//print type + ": "+parser.getArg1()+", " + parser.getArg2()
+				codeWriter.writePush(parser.getArg1(),parser.getArg2())
+			elif(type == CommandType.C_LABEL):
+				codeWriter.writeLabel(parser.getArg1(), fileName)
+			elif(type == CommandType.C_GOTO):
+				codeWriter.writeGoto(parser.getArg1(), fileName)
+			elif(type == CommandType.C_IF):
+				codeWriter.writeIf(parser.getArg1(), fileName)
+			elif(type == CommandType.C_FUNCTION):
+				codeWriter.writeFunction(parser.getArg1(), parser.getArg2())
 		codeWriter.close()
 			
 					
