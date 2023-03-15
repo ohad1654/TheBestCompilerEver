@@ -7,12 +7,13 @@ class CodeWriter:
 """Description of CodeWriter"""
 	outputFile as StreamWriter
 	className as string
-	private labelCounter = 0
+	private relOpLabelCounter = 0
+	private functionLabelCounter = 0
 	
 	public def constructor(fileName as string):
 		self.outputFile = File.CreateText(fileName)
 		self.className = Path.GetFileNameWithoutExtension(fileName)
-
+		
 	
 	public def writeArithmetic(command as string):
 	"""This function writes an arithmetic command which takes
@@ -52,24 +53,24 @@ class CodeWriter:
 			self.WriteLine("A = A - 1") //A->x
 			self.WriteLine("D = M - D")
 			//jump to IF_TRUE, if x <RELOP> y 
-			self.WriteLine("@IF_TRUE"+labelCounter)//-----------┐
+			self.WriteLine("@IF_TRUE"+relOpLabelCounter)//-----------┐
 			self.WriteLine("D;"+self.relopToJump(command))//    |
 			// in case x not <RELOP> y, push false (=0)         |
 			self.WriteLine("@SP")//                             |
 			self.WriteLine("A = M - 1")// A->x                  |
 			self.WriteLine("M=0")//                             |
-			self.WriteLine("@IF_FALSE"+labelCounter)//----------╂---┐
+			self.WriteLine("@IF_FALSE"+relOpLabelCounter)//----------╂---┐
 			self.WriteLine("0;JMP")//                           |	|
 			//											  <-----┘	|
-			self.WriteLine("(IF_TRUE" + labelCounter + ")")//		|
+			self.WriteLine("(IF_TRUE" + relOpLabelCounter + ")")//		|
 			//push true (=-1)										|
 			self.WriteLine("@SP")//									|
 			self.WriteLine("A = M - 1")// now M=x					|
 			self.WriteLine("M = -1")//								|
 			//											   <--------┘
-			self.WriteLine("(IF_FALSE" + labelCounter + ")")
+			self.WriteLine("(IF_FALSE" + relOpLabelCounter + ")")
 			
-			labelCounter+=1
+			relOpLabelCounter+=1
 
 		else: 
 			raise "CodeWriter: Unknown arithmetic command: " + command
@@ -153,26 +154,26 @@ class CodeWriter:
 		else:
 			raise "Unknown segment name: "+segment
 		
-		self.WriteLine("@R15")
+		self.WriteLine("@R13")
 		self.WriteLine("M = D") // store the dest address at R13
 		self.WriteLine(self.popToD())//D = value of the top argument of the stack
-		self.WriteLine("@R15")
+		self.WriteLine("@R13")
 		self.WriteLine("A = M") // A = the destanenion address
 		self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 		
 
 
-	public def writeLabel(label as string, fileName as string):
+	public def writeLabel(label as string):
 		self.WriteLine("// label:"+" "+label) //for debugging asm...
-		self.WriteLine("("+fileName + "." + label +")")
+		self.WriteLine("("+className + "." + label +")")
 
 
-	public def writeGoto(label as string, fileName as string):
+	public def writeGoto(label as string):
 		self.WriteLine("// goto"+" "+label) //for debugging asm...
-		self.WriteLine("@"+fileName + "." + label)
+		self.WriteLine("@"+className + "." + label)
 		self.WriteLine("0;JMP") 
 		
 	
-	public def writeIf(label as string, fileName as string):
+	public def writeIf(label as string):
 		self.WriteLine("// if-goto"+" "+label) //for debugging asm...
 		//pop topmost value
 		self.WriteLine("@SP")
@@ -180,18 +181,63 @@ class CodeWriter:
 		self.WriteLine("A=M")
 		self.WriteLine("D=M")
 		// Jump to label if not equal to 0
-		self.WriteLine("@" + fileName + "." + label)
+		self.WriteLine("@" + className + "." + label)
 		self.WriteLine("D;JNE")
 	
 	
 	public def writeFunction(functionName as string, nVars as int):
 		self.WriteLine("// fuction "+ functionName + " "+nVars) //for debugging asm...
 		self.WriteLine("("+ functionName +")")
-		for(int i=0; i<nVars; i++):
-			self.WriteLine("init var " + i + "=0")
-			self.writePush("constant", 0)
+		self.WriteLine("//init " + nVars + " with 0")
+		
+		self.WriteLine("@"+nVars)
+		self.WriteLine("D=A")
+		self.WriteLine("(" + "INIT_BEGIN" + functionLabelCounter+")") //we don't use writeabel cause it intended to write VM labels
+		//loop condition - check if nVarse were set to 0
+		self.WriteLine("@"+"INIT_END" + functionLabelCounter)
+		self.WriteLine("D;JEQ")
+		
+		//decrease counter
+		self.WriteLine("D=D-1")
+		
+		//push another 0 (we can't use self.push("constant",0) as it uses D)
+		self.WriteLine("@SP")
+		self.WriteLine("M=M+1")
+		self.WriteLine("A=M-1")
+		self.WriteLine("M=0")
+		
+		//go back to BeginInitLoop (we can't use writeLabel as it add fileName to label name)
+		self.WriteLine("@INIT_BEGIN" + functionLabelCounter)
+		self.WriteLine("0;JMP")
+		self.WriteLine("@"+"INIT_END" + functionLabelCounter)
+		
+		functionLabelCounter+=1
+	
+	public def writeCall(functionNmae as string, nArgs as int):
 		pass
+		
+		
+	public def writeReturn():
+		//FRAME = LCL  (actually D=LCL)
+		self.WriteLine("@LCL")
+		self.WriteLine("D=M")
 
+		//RET_ADDRESS = *(FRAME-5) =>we want to save the return adress
+		// (which eqauls to *(FRAME-5)) on RAM[13]
+		self.WriteLine("@5")
+		self.WriteLine("D=D-A")
+		self.WriteLine("D=M") //D=*(FRAME-5)
+		self.WriteLine("@13")
+		self.WriteLine("M=D")
+		
+		//*ARG = pop() => we save the return value (which is now the
+		// on the top of the stack, an ARGS[0]
+		self.WriteLine("@SP")
+		self.WriteLine("M=M-1")
+		self.WriteLine("D=M")
+		self.WriteLine("@ARG")
+		self.WriteLine("A=M")
+		self.WriteLine("M=D")
 
 	public def close():
 		self.outputFile.Close()

@@ -21,7 +21,6 @@ def main():
 	
 	for file in Files:
 		fullPathToFile = file.FullName
-		fileName = Path.GetFileNameWithoutExtension(fullPathToFile)
 		parser = Parser(fullPathToFile)
 		codeWriter = CodeWriter(changeExt(fullPathToFile, ".asm"))
 		while(parser.hasMoreLines()):
@@ -40,13 +39,17 @@ def main():
 				//print type + ": "+parser.getArg1()+", " + parser.getArg2()
 				codeWriter.writePush(parser.getArg1(),parser.getArg2())
 			elif(type == CommandType.C_LABEL):
-				codeWriter.writeLabel(parser.getArg1(), fileName)
+				codeWriter.writeLabel(parser.getArg1())
 			elif(type == CommandType.C_GOTO):
-				codeWriter.writeGoto(parser.getArg1(), fileName)
+				codeWriter.writeGoto(parser.getArg1())
 			elif(type == CommandType.C_IF):
-				codeWriter.writeIf(parser.getArg1(), fileName)
+				codeWriter.writeIf(parser.getArg1())
 			elif(type == CommandType.C_FUNCTION):
 				codeWriter.writeFunction(parser.getArg1(), parser.getArg2())
+			elif(type == CommandType.C_RETURN):
+				codeWriter.writeReturn()
+			elif(type == CommandType.C_CALL):
+				codeWriter.writeCall(parser.getArg1(), parser.getArg2())
 		codeWriter.close()
 			
 					

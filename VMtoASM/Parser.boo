@@ -44,7 +44,11 @@ class Parser:
 		elif(args[0] == "if-goto"):
 			commandType = CommandType.C_IF
 		elif(args[0] == "function"):
-			CommandType = CommandType.C_FUNCTION
+			commandType = CommandType.C_FUNCTION
+		elif(args[0] == "return"):
+			commandType = CommandType.C_RETURN
+		elif(args[0] == "call"):
+			commandType = CommandType.C_CALL	
 		elif(args[0] == ""):
 			commandType = CommandType.WHITELINE
 		else:
