@@ -222,15 +222,15 @@ class CodeWriter:
 		self.WriteLine("@LCL")
 		self.WriteLine("D=M")
 
-		//RET_ADDRESS = *(FRAME-5) =>we want to save the return adress
+		//RET_ADDRESS = *(FRAME-5) <=>we want to save the return adress
 		// (which eqauls to *(FRAME-5)) on RAM[13]
 		self.WriteLine("@5")
 		self.WriteLine("D=D-A")
 		self.WriteLine("D=M") //D=*(FRAME-5)
-		self.WriteLine("@13")
+		self.WriteLine("@14") //We already use R13 on PUSH command
 		self.WriteLine("M=D")
 		
-		//*ARG = pop() => we save the return value (which is now the
+		//*ARG = pop() <=> we save the return value (which is now the
 		// on the top of the stack, an ARGS[0]
 		self.WriteLine("@SP")
 		self.WriteLine("M=M-1")
@@ -238,10 +238,51 @@ class CodeWriter:
 		self.WriteLine("@ARG")
 		self.WriteLine("A=M")
 		self.WriteLine("M=D")
+		
+		//SP = ARG + 1 <=> repositioning SP (just after RETURN VALUE)
+		self.WriteLine("@ARG")
+		self.WriteLine("@D=A+1") //D=ARG+1
+		self.WriteLine("@SP")
+		self.WriteLine("M=D")
+		
+		//restore the value of all remaining segments:
+		//THAT=*(FRAME-1)
+		writeSetDFromFrame(-1)
+		writeSetDFromFrame("THAT")
+		
+		//THIS = *(FRAM-2) 
+		writeSetDFromFrame(-2)
+		writeSetDFromFrame("THIS")
+		
+		//ARG = *(FRAM-3)
+		writeSetDFromFrame(-3)
+		writeSetDFromFrame("ARG")
+		
+		//LCL = *(FRAM-4) 
+		writeSetDFromFrame(-4)
+		writeSetDFromFrame("LCL")
+		
+		//goto RET <=> go back to return adress
+		self.WriteLine("@R14")
+		self.WriteLine("A=M")
+		self.WriteLine("0;JMP")
+		
+	private def writeSetDFromFrame(int offset):
+		//FRAME = LCL  (actually D=LCL)
+		self.WriteLine("@LCL")
+		self.WriteLine("D=M")
+		
+		self.WriteLine("@"+offset)
+		self.WriteLine("D=D+A")
+		self.WriteLine("D=M") //D=*(FRAME+offset)
+		
+	private def writeRestoreSegmentFromD(segment as string):
+		self.WriteLine("@" + segment)
+		self.WriteLine("M=D")
+		
 
 	public def close():
 		self.outputFile.Close()
-	
 	
 	
 	private def WriteLine(line as string):
