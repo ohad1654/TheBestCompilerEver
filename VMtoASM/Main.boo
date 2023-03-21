@@ -18,11 +18,11 @@ def main():
 	path = Console.ReadLine()
 	d = DirectoryInfo(path); 
 	Files = d.GetFiles("*.vm"); //Getting vm files
+	codeWriter = CodeWriter(d.FullName + "\\" + d.Name + ".asm")
 	
 	for file in Files:
 		fullPathToFile = file.FullName
 		parser = Parser(fullPathToFile)
-		codeWriter = CodeWriter(changeExt(fullPathToFile, ".asm"))
 		while(parser.hasMoreLines()):
 			parser.advance()
 			type = parser.getCommandType()
