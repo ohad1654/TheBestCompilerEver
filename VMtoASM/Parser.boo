@@ -23,6 +23,7 @@ class Parser:
 	
 	public def advance():
 		currentCommand = streamReader.ReadLine()
+		currentCommand=currentCommand
 		currentCommand = currentCommand.Trim()
 		args = currentCommand.Split(char(' '))
 		
@@ -61,9 +62,10 @@ class Parser:
 			arg1 = args[0]
 		elif(commandType in [CommandType.C_PUSH, CommandType.C_POP, CommandType.C_FUNCTION, CommandType.C_CALL]):
 			arg1 = args[1]
+			args[2] = args[2].Split(char('/'))[0]
 			ok = int.TryParse(args[2],arg2)
 			if(not ok):
-				print "-----arg2 of the command: " + currentCommand + " is making troublesss"		
+				raise "-----arg2 of the command: " + currentCommand + " is making troublesss"		
 		elif(commandType in [CommandType.C_LABEL ,CommandType.C_GOTO, CommandType.C_IF]): //
 			arg1 = args[1]
 			

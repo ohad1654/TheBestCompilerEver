@@ -6,12 +6,19 @@ import System.IO
 class CodeWriter:
 """Description of CodeWriter"""
 	outputFile as StreamWriter
-	className as string
+	public className as string
 	private relOpLabelCounter = 0
 	private functionLabelCounter = 0
+	private callLabbelCounter=0
 	
 	public def constructor(fileName as string):
 		self.outputFile = File.CreateText(fileName)
+		self.WriteLine("//Bootstrap code")
+		self.WriteLine("@256")
+		self.WriteLine("D = A")
+		self.WriteLine("@SP")
+		self.WriteLine("M = D")
+		self.writeCall("Sys.init",0)
 		self.className = Path.GetFileNameWithoutExtension(fileName)
 		
 	
@@ -208,12 +215,41 @@ class CodeWriter:
 		//go back to BeginInitLoop (we can't use writeLabel as it add fileName to label name)
 		self.WriteLine("@INIT_BEGIN" + functionLabelCounter)
 		self.WriteLine("0;JMP")
-		self.WriteLine("@"+"INIT_END" + functionLabelCounter)
+		self.WriteLine("(INIT_END" + functionLabelCounter+")")
 		
 		functionLabelCounter+=1
 	
-	public def writeCall(functionNmae as string, nArgs as int):
-		pass
+	public def writeCall(functionName as string, nArgs as int):
+		self.WriteLine("// call "+functionName +" "+ nArgs)
+		self.WriteLine("@retAddr"+callLabbelCounter)
+		self.WriteLine("D = A")
+		//push return adddress:
+		self.WriteLine(self.pushD())
+		
+		for segment in ["LCL","ARG","THIS","THAT"]:
+			self.WriteLine("@"+segment)
+			self.WriteLine("D = M")
+			self.WriteLine(self.pushD()) 
+			
+		////LCL = SP
+		self.WriteLine("@SP")
+		self.WriteLine("D = M") //D = SP
+		self.WriteLine("@LCL")
+		self.WriteLine("M = D")
+		
+		//ARG = SP-5-nArgs
+		self.WriteLine("@"+(5+nArgs))
+		self.WriteLine("D = D - A")// D = SP-5-nArgs
+		self.WriteLine("@ARG")
+		self.WriteLine("M = D") 
+		
+		self.WriteLine("@"+functionName)
+		self.WriteLine("0;JMP") 
+		
+		self.WriteLine("(retAddr"+callLabbelCounter+")")
+		
+		callLabbelCounter+=1
+		
 		
 		
 	public def writeReturn():
@@ -365,4 +401,11 @@ class CodeWriter:
 		result+="D = M"
 		
 		return result
-		
+	
+	private def pushD() as string:
+	"""store D to the top arg of the stack; increase SP"""
+		result= "@SP\n"
+		result+="M = M + 1\n" //decrease SP because push...
+		result+="A = M - 1\n"
+		result+="M = D"
+		return result

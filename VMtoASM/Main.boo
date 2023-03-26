@@ -22,6 +22,8 @@ def main():
 	
 	for file in Files:
 		fullPathToFile = file.FullName
+		fileName=Path.GetFileNameWithoutExtension(file.Name)
+		codeWriter.className=fileName
 		parser = Parser(fullPathToFile)
 		while(parser.hasMoreLines()):
 			parser.advance()
@@ -50,7 +52,7 @@ def main():
 				codeWriter.writeReturn()
 			elif(type == CommandType.C_CALL):
 				codeWriter.writeCall(parser.getArg1(), parser.getArg2())
-		codeWriter.close()
+	codeWriter.close()
 			
 					
 main()
