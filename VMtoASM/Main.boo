@@ -3,11 +3,6 @@
 import System
 import System.IO
 
-public def changeExt(oldFileName as string, newExt as string):
-	pathWithoutFileName = Path.GetDirectoryName(oldFileName)
-	fileName = Path.GetFileNameWithoutExtension(oldFileName)
-	result = pathWithoutFileName + "\\" + fileName + newExt
-	return result
 
 def main():
 	print "-----------------------------"
@@ -16,14 +11,21 @@ def main():
 	print "-----------------------------"
 	print "Enter path to directory please: "
 	path = Console.ReadLine()
-	d = DirectoryInfo(path); 
-	Files = d.GetFiles("*.vm"); //Getting vm files
-	codeWriter = CodeWriter(d.FullName + "\\" + d.Name + ".asm")
+	Files as (FileInfo)
+	if (Path.GetExtension(path)==".vm"):
+		Files= [FileInfo(path)].ToArray(FileInfo)
+		codeWriter = CodeWriter(Path.ChangeExtension(path,".asm"))
+	elif Path.GetExtension(path)=="":// path is directory
+		d = DirectoryInfo(path);	
+		Files = d.GetFiles("*.vm"); //Getting all .vm files
+		codeWriter = CodeWriter(d.FullName + "\\" + d.Name + ".asm")
+	else:
+		raise "Invalid path or file type"
 	
 	for file in Files:
 		fullPathToFile = file.FullName
 		fileName=Path.GetFileNameWithoutExtension(file.Name)
-		codeWriter.className=fileName
+		codeWriter.setFileName(fileName)
 		parser = Parser(fullPathToFile)
 		while(parser.hasMoreLines()):
 			parser.advance()

@@ -8,7 +8,6 @@ class CodeWriter:
 	outputFile as StreamWriter
 	public className as string
 	private relOpLabelCounter = 0
-	private functionLabelCounter = 0
 	private callLabbelCounter=0
 	
 	public def constructor(fileName as string):
@@ -19,9 +18,13 @@ class CodeWriter:
 		self.WriteLine("@SP")
 		self.WriteLine("M = D")
 		self.writeCall("Sys.init",0)
-		self.className = Path.GetFileNameWithoutExtension(fileName)
 		
+	public def setFileName(fileName as string):
+		self.className=fileName		
 	
+	public def close():
+		self.outputFile.Close()
+
 	public def writeArithmetic(command as string):
 	"""This function writes an arithmetic command which takes
 	   x, y or only y from the stack, makes a calculation on them, and push
@@ -80,9 +83,7 @@ class CodeWriter:
 			relOpLabelCounter+=1
 
 		else: 
-			raise "CodeWriter: Unknown arithmetic command: " + command
-		
-		
+			raise "CodeWriter: Unknown arithmetic command: " + command		
 		
 	public def writePush(segment as string, index as int):
 		self.WriteLine("// push"+" "+segment+" "+index) //for debugging asm...
@@ -122,9 +123,7 @@ class CodeWriter:
 		self.WriteLine("@SP")
 		self.WriteLine("M = M + 1")
 		self.WriteLine("A = M - 1")
-		self.WriteLine("M = D")
-
-			
+		self.WriteLine("M = D")			
 			
 	public def writePop(segment as string, index as int):
 		self.WriteLine("// pop "+segment+" "+index) //for debugging asm...
@@ -168,29 +167,22 @@ class CodeWriter:
 		self.WriteLine("A = M") // A = the destanenion address
 		self.WriteLine("M = D") //store the poped value (D) at the destanenion (A) 		
 
-
 	public def writeLabel(label as string):
 		self.WriteLine("// label:"+" "+label) //for debugging asm...
 		self.WriteLine("("+className + "." + label +")")
 
-
 	public def writeGoto(label as string):
 		self.WriteLine("// goto"+" "+label) //for debugging asm...
 		self.WriteLine("@"+className + "." + label)
-		self.WriteLine("0;JMP") 
-		
+		self.WriteLine("0;JMP") 		
 	
 	public def writeIf(label as string):
 		self.WriteLine("// if-goto"+" "+label) //for debugging asm...
 		//pop topmost value
-		self.WriteLine("@SP")
-		self.WriteLine("M=M-1")
-		self.WriteLine("A=M")
-		self.WriteLine("D=M")
-		// Jump to label if not equal to 0
+		self.WriteLine(self.popToD())
+		// Jump to label if D not equal to 0(0=false)
 		self.WriteLine("@" + className + "." + label)
 		self.WriteLine("D;JNE")
-	
 	
 	public def writeFunction(functionName as string, nVars as int):
 		self.WriteLine("// fuction "+ functionName + " "+nVars) //for debugging asm...
@@ -199,9 +191,9 @@ class CodeWriter:
 		
 		self.WriteLine("@"+nVars)
 		self.WriteLine("D=A")
-		self.WriteLine("(" + "INIT_BEGIN" + functionLabelCounter+")") //we don't use writeabel cause it intended to write VM labels
+		self.WriteLine("("+functionName + "$"+"INIT_BEGIN)") //we don't use writeabel cause it intended to write VM labels
 		//loop condition - check if nVarse were set to 0
-		self.WriteLine("@"+"INIT_END" + functionLabelCounter)
+		self.WriteLine("@"+functionName + "$"+"INIT_END")
 		self.WriteLine("D;JEQ")
 		//decrease counter
 		self.WriteLine("D=D-1")
@@ -213,15 +205,15 @@ class CodeWriter:
 		self.WriteLine("M=0")
 		
 		//go back to BeginInitLoop (we can't use writeLabel as it add fileName to label name)
-		self.WriteLine("@INIT_BEGIN" + functionLabelCounter)
+		self.WriteLine("@"+functionName + "$"+"INIT_BEGIN")
 		self.WriteLine("0;JMP")
-		self.WriteLine("(INIT_END" + functionLabelCounter+")")
+		self.WriteLine("("+functionName + "$"+"INIT_END)")
 		
-		functionLabelCounter+=1
+
 	
 	public def writeCall(functionName as string, nArgs as int):
 		self.WriteLine("// call "+functionName +" "+ nArgs)
-		self.WriteLine("@retAddr"+callLabbelCounter)
+		self.WriteLine("@"+functionName+"$"+"ret."+callLabbelCounter)
 		self.WriteLine("D = A")
 		//push return adddress:
 		self.WriteLine(self.pushD())
@@ -246,11 +238,9 @@ class CodeWriter:
 		self.WriteLine("@"+functionName)
 		self.WriteLine("0;JMP") 
 		
-		self.WriteLine("(retAddr"+callLabbelCounter+")")
+		self.WriteLine("("+functionName+"$"+"ret."+callLabbelCounter+")")
 		
-		callLabbelCounter+=1
-		
-		
+		callLabbelCounter+=1		
 		
 	public def writeReturn():
 		self.WriteLine("// Return")
@@ -330,11 +320,6 @@ class CodeWriter:
 		self.WriteLine("@" + segment)
 		self.WriteLine("M=D")
 		
-
-	public def close():
-		self.outputFile.Close()
-	
-	
 	private def WriteLine(line as string):
 		self.outputFile.WriteLine(line)
 		
