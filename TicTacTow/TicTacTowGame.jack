@@ -2,16 +2,18 @@
  * This class implements the Tic-Tac-Tow game
  */
 class TicTacTowGame{
-    field Player player1;
-    field Player player2;
     field Board board;
-    field boolean exit;
+
+    field int EMPTY_VAL;
+    field int X_VAL;
+    field int O_VAL;
 
     /** Constructs a new Square Game. */
    constructor TicTacTowGame new() {
         let board = Board.new(150,50,50,3);
-        do board.drawO(150,150,20);
-        let exit = false;
+        let EMPTY_VAL = 0;
+        let X_VAL = 1;
+        let O_VAL = 2;
         return this;
     }
 
@@ -23,9 +25,71 @@ class TicTacTowGame{
 
     /** Runs the game: handles the user's inputs and moves the square accordingly */
    method void run() {
-        while(~exit){
-            do board.drawBoard();
+        var int winner;
+        var int curruntPlayer;
+        var int choice;
+        var int flag;
+        var int fullSpotConter;
+        
+
+
+        let flag=1;
+        let curruntPlayer = X_VAL;
+        do board.printBoard(5,10);
+        while ((winner=0) & (fullSpotConter<9)) {
+            let choice = Keyboard.readInt("Choose your move (0-8): ");
+            if (board.getVal(choice)=EMPTY_VAL){ //check if the chosen spot is empty
+                do board.setVal(choice,curruntPlayer);
+                let winner = calcWinner();
+
+                do board.printBoard(5,10);
+                let fullSpotConter = fullSpotConter + 1;
+                //switch the currentPlayer between 1-2-1-2-1-2.. 
+                let curruntPlayer = curruntPlayer+flag;
+                let flag = Math.multiply(flag,-1);
+            }
+            else
+            {
+                //TODO: invalid spot...
+            }
         }
+        do Output.printString("The winner is: ");
+        do Output.printInt(winner);
+
         return;
    }
+
+
+method int calcWinner() {
+    var int i;
+    var int iMul3;
+
+    while (i<3){
+        let iMul3 = Math.multiply(i,3);
+        if((board.getVal(iMul3) = board.getVal(iMul3+1))  &  (board.getVal(iMul3+1) = board.getVal(iMul3+2))){
+            return board.getVal(iMul3);
+        }
+
+        if((board.getVal(i) = board.getVal(3+i))  &  (board.getVal(3+i) = board.getVal(6+i))){
+            return board.getVal(i);
+        }
+        let i = i + 1;
+    }
+
+
+    //      0   1   2
+    //      3   4   5
+    //      6   7   8
+    if((board.getVal(0) = board.getVal(4))  &  (board.getVal(4) = board.getVal(8))){
+        return board.getVal(0);
+    }
+    if((board.getVal(2) = board.getVal(4))  &  (board.getVal(4) = board.getVal(6))){
+        return board.getVal(2);
+    }
+
+    return 0;
 }
+
+   
+}
+

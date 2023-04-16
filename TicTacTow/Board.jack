@@ -7,8 +7,9 @@ class Board{
     field int y; // x value of top-left corner of the screen
     field int squareSize; // size of the board for drawing purposes (relative to screen size).
     field int borderThickness;
-    field int Xval;
-    field int Oval;
+    field int EMPTY_VAL;
+    field int X_VAL;
+    field int O_VAL;
 
     /** Constructs a new Square Game. */
    constructor Board new(int Ax, int Ay, int AsquareSize, int AborderThickness) {
@@ -16,8 +17,9 @@ class Board{
         let y = Ay;
         let squareSize = AsquareSize;
         let borderThickness = AborderThickness;
-        let Xval = 1;
-        let Oval = 2;
+        let EMPTY_VAL = 0;
+        let X_VAL = 1;
+        let O_VAL = 2;
         do initBoard();
         return this;
     }
@@ -33,7 +35,7 @@ class Board{
             let temp = Array.new(3);
             while(j < 3)
             {
-                let temp[j] = 2;
+                let temp[j] = EMPTY_VAL;
                 let j = j+1;
             }
             let board[i] = temp;
@@ -42,6 +44,32 @@ class Board{
         return;
     }
     
+    method int getVal(int choice){
+        var Array temp;
+        var int i;
+        var int j;
+        if (choice>8){
+            return -1;
+        }
+        let j = modulo(choice,3);
+        let i = Math.divide(choice-j,3);
+        let temp = board[i];
+        return temp[j];
+    }
+
+    method void setVal(int choice, int val){
+        var Array temp;
+        var int i;
+        var int j;
+        let j = modulo(choice,3);
+        let i = Math.divide(choice-j,3);
+        let temp = board[i];
+        let temp[j] = val;
+        return;
+    }
+
+    
+
     method void drawX(int x, int y, int size){
         return;
     }
@@ -82,10 +110,10 @@ class Board{
             {
                 let curAr = board[i];
                 let cur = curAr[j];
-                if (cur = Xval) {
+                if (cur = X_VAL) {
                     do drawX(100,100,40);
                 }
-                if (cur = Oval) {
+                if (cur = O_VAL) {
                     do drawO(x+(j*squareSize)+halfSquareSize,y+(i*squareSize)+halfSquareSize,10);
                 }
                 let j = j+1;
@@ -107,7 +135,7 @@ class Board{
      */
     method void printBoard(int x, int y){ 
         var Array curAr;
-        var char cur;
+        var int cur;
         var int i;
         var int j;
         let i = 0;
@@ -120,7 +148,15 @@ class Board{
             {
                 let curAr = board[i];
                 let cur = curAr[j];
-                do Output.printString(cur);
+                if(cur = X_VAL){
+                    do Output.printString("x");
+                }
+                if(cur = O_VAL){
+                    do Output.printString("o");
+                }
+                if(cur = EMPTY_VAL){
+                    do Output.printString(" ");
+                }
                 do Output.printString("|");
                 let j = j+1;
             }
@@ -130,6 +166,14 @@ class Board{
         return;
     }
 
-
+method int modulo(int x, int y){
+        var int div;
+        var int temp;
+        var int result;
+        let div = Math.divide(x,y);
+        let temp = Math.multiply(div, y);
+        let result = x-temp;
+        return result;
+    }
    
 }

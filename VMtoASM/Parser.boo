@@ -23,7 +23,6 @@ class Parser:
 	
 	public def advance():
 		currentCommand = streamReader.ReadLine()
-		currentCommand=currentCommand
 		currentCommand = currentCommand.Trim()
 		args = currentCommand.Split(char(' '))
 		

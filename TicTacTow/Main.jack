@@ -1,6 +1,6 @@
 /** 
  * Authors:
- * Ohad
+ * Ohad Schwarz 326004280
  * Harel Adadi 214761264
  * Initializes a new Tic-Tac-Tow Dance game and starts running it. */
 class Main {
