@@ -1,0 +1,31 @@
+/** 
+ * This class implements the Tic-Tac-Tow game
+ */
+class TicTacTowGame{
+    field Player player1;
+    field Player player2;
+    field Board board;
+    field boolean exit;
+
+    /** Constructs a new Square Game. */
+   constructor TicTacTowGame new() {
+        let board = Board.new(150,50,50,3);
+        do board.drawO(150,150,20);
+        let exit = false;
+        return this;
+    }
+
+    /** Disposes this game. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Runs the game: handles the user's inputs and moves the square accordingly */
+   method void run() {
+        while(~exit){
+            do board.drawBoard();
+        }
+        return;
+   }
+}

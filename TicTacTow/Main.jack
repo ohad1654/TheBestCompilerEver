@@ -1,0 +1,17 @@
+/** 
+ * Authors:
+ * Ohad
+ * Harel Adadi 214761264
+ * Initializes a new Tic-Tac-Tow Dance game and starts running it. */
+class Main {
+    function void main() {
+        var TicTacTowGame game;
+        var String startGameMsg;
+        let startGameMsg = "Hello and welcome to The ultimate Tic-TacTow game!";
+        do Output.printString(startGameMsg);
+        let game = TicTacTowGame.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

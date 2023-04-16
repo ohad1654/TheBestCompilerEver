@@ -1,0 +1,135 @@
+/** 
+ * This class implements the Tic-Tac-Tow board
+ */
+class Board{
+    field Array board;
+    field int x; // x value of top-left corner of the screen
+    field int y; // x value of top-left corner of the screen
+    field int squareSize; // size of the board for drawing purposes (relative to screen size).
+    field int borderThickness;
+    field int Xval;
+    field int Oval;
+
+    /** Constructs a new Square Game. */
+   constructor Board new(int Ax, int Ay, int AsquareSize, int AborderThickness) {
+        let x = Ax;
+        let y = Ay;
+        let squareSize = AsquareSize;
+        let borderThickness = AborderThickness;
+        let Xval = 1;
+        let Oval = 2;
+        do initBoard();
+        return this;
+    }
+    
+    method void initBoard(){
+        var int i,j;
+        var Array temp;
+        let board = Array.new(3);
+        let i = 0;
+        let j = 0;
+        while(i < 3){
+            let j = 0;
+            let temp = Array.new(3);
+            while(j < 3)
+            {
+                let temp[j] = 2;
+                let j = j+1;
+            }
+            let board[i] = temp;
+            let i = i+1;
+        }
+        return;
+    }
+    
+    method void drawX(int x, int y, int size){
+        return;
+    }
+
+    method void drawO(int x, int y, int size){
+        do Screen.drawCircle(x,y,size);
+        return;
+    }
+
+    method void drawBoard(){
+        var Array curAr;
+        var String cur;
+        var int halfSquareSize;
+        var int i;
+        var int j;
+        let i = 0;
+        //do printBoard(5,5);
+        
+        //draw borders:
+        do Screen.setColor(true);
+        //draw horizonal borders
+        while(i < 4){
+            do Screen.drawRectangle(x,y+(squareSize*i),x+(squareSize*3),y+(squareSize*i)+borderThickness);//no kdimut operators!!
+            let i = i + 1;
+        }
+        //draw vertical borders
+        let i = 0;
+        while(i < 4){
+            do Screen.drawRectangle(x+(squareSize*i),y,x+(squareSize*i)+borderThickness,y+(squareSize*3));//no kdimut operators!!
+            let i = i + 1;
+        }
+        let halfSquareSize = Math.divide(squareSize, 2);
+        //draw X's and O's:
+        let i = 0;
+        while(i < 3){
+            let j = 0;
+            while(j < 3)
+            {
+                let curAr = board[i];
+                let cur = curAr[j];
+                if (cur = Xval) {
+                    do drawX(100,100,40);
+                }
+                if (cur = Oval) {
+                    do drawO(x+(j*squareSize)+halfSquareSize,y+(i*squareSize)+halfSquareSize,10);
+                }
+                let j = j+1;
+            }
+            let i = i+1;
+        }
+        return;
+    }
+
+    
+    /*print the bord as characters. top-left corner is located by x,y
+     * where:
+     * y is col (in range 0..63)
+     * x is row (in range 0..22)
+    /* example:
+     *|X|O|X|
+     *|X|X|X|
+     *|O|O|X|
+     */
+    method void printBoard(int x, int y){ 
+        var Array curAr;
+        var char cur;
+        var int i;
+        var int j;
+        let i = 0;
+        let j = 0;
+        while(i < 3){
+            do Output.moveCursor(x+i,y);
+            let j = 0;
+            do Output.printString("|");
+            while(j < 3)
+            {
+                let curAr = board[i];
+                let cur = curAr[j];
+                do Output.printString(cur);
+                do Output.printString("|");
+                let j = j+1;
+            }
+            do Output.println();
+            let i = i+1;
+        }
+        return;
+    }
+
+
+   
+}
