@@ -9,6 +9,8 @@ class Logger{
     field int FIRST_MESSAGE_ROW; // in which row messages will be written (0 => above top-border).
     field int SECOND_MESSAGE_ROW;
     field int MESSAGE_COL_SPACE;
+    field int BOARD_ROW;
+    field int BOARD_COL;
     
 
     constructor Logger new(int AtopLeftX, int AtopLeftY, int AbottomRightX, int AbottomRightY) {
@@ -22,6 +24,8 @@ class Logger{
         let SECOND_MESSAGE_ROW = 3;
         let MESSAGE_COL_SPACE = 1;
         let BORDER_THICKNESS = 3;
+        let BOARD_ROW = 2;
+        let BOARD_COL = 40;
         return this;
     }
 
@@ -44,18 +48,25 @@ class Logger{
         return;
     }
 
-    method int getTurn(){
+    method int getTurn(int player){
         var int choise;
         do setCursor(MESSAGE_COL_SPACE,FIRST_MESSAGE_ROW);
-        let choise = Keyboard.readInt("Choose your move (0-8):");
+        do Output.printString("player");
+        do Output.printInt(player);
+        let choise = Keyboard.readInt(" choose your move:");
         return choise;
     }
 
     method void printWinner(int winner){
         do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
-        do Output.printString("The winner is player  ");
-        do Output.printInt(winner);
-        do Output.printString("!!!!!");
+        if(winner=0){
+            do Output.printString("--DRAW--");
+        }
+        else{
+            do Output.printString("The winner is player");
+            do Output.printInt(winner);
+            do Output.printString(" !!!!!");
+        }
         return;
     }
 
@@ -63,15 +74,52 @@ class Logger{
         do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
         do Output.printString("Spot ");
         do Output.printInt(choice);
-        do Output.printString(" is already occupied!!!!");
+        do Output.printString(" is illegal!!!!");
         return; 
     }
 
     method void clearErrorMessage(){
         do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
-        do Output.printString("                                   ");
+        do Output.printString("                       ");
         return;
     }
+
+
+    /*print the bord as characters. top-left corner is located by x,y
+     * where:
+     * y is col (in range 0..63)
+     * x is row (in range 0..22)
+    /* example:
+     *|0|1|2|
+     *|3|4|5|
+     *|6|7|8|   
+     */
+    method void printBoard(){ 
+        var int x;
+        var int y;
+        var int i;
+        var int j;
+        let x = BOARD_ROW;
+        let y = BOARD_COL;
+        let i = 0;
+        let j = 0;
+        do setCursor(BOARD_COL,BOARD_ROW);
+        while(i < 3){
+            do Output.moveCursor(x+i,y);
+            let j = 0;
+            do Output.printString("|");
+            while(j < 3)
+            {
+                do Output.printInt(j+Math.multiply(3,i));
+                do Output.printString("|");
+                let j = j+1;
+            }
+            do Output.println();
+            let i = i+1;
+        }
+        return;
+    }
+
 
 
 }
