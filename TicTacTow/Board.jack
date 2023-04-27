@@ -68,9 +68,27 @@ class Board{
         return;
     }
 
-    
-
-    method void drawX(int x, int y, int size){
+    method void drawX(int x, int y){
+        var int location;
+        var int memAddress;
+        let location = Math.multiply(y,32)+Math.divide(x,16);
+        let memAddress = location+16384;
+        do Memory.poke(memAddress+0, -16381);
+        do Memory.poke(memAddress+32, -8185);
+        do Memory.poke(memAddress+64, 28686);
+        do Memory.poke(memAddress+96, 14364);
+        do Memory.poke(memAddress+128, 7224);
+        do Memory.poke(memAddress+160, 3696);
+        do Memory.poke(memAddress+192, 2016);
+        do Memory.poke(memAddress+224, 960);
+        do Memory.poke(memAddress+256, 960);
+        do Memory.poke(memAddress+288, 2016);
+        do Memory.poke(memAddress+320, 3696);
+        do Memory.poke(memAddress+352, 7224);
+        do Memory.poke(memAddress+384, 14364);
+        do Memory.poke(memAddress+416, 28686);
+        do Memory.poke(memAddress+448, -8185);
+        do Memory.poke(memAddress+480, -16381);
         return;
     }
 
@@ -85,9 +103,7 @@ class Board{
         var int halfSquareSize;
         var int i;
         var int j;
-        let i = 0;
-        //do printBoard(5,5);
-        
+        let i = 0;        
         //draw borders:
         do Screen.setColor(true);
         //draw horizonal borders
@@ -111,10 +127,10 @@ class Board{
                 let curAr = board[i];
                 let cur = curAr[j];
                 if (cur = X_VAL) {
-                    do drawX(100,100,40);
+                    do drawX(x+(j*squareSize)+halfSquareSize,y+(i*squareSize)+halfSquareSize-5);// -5!
                 }
                 if (cur = O_VAL) {
-                    do drawO(x+(j*squareSize)+halfSquareSize,y+(i*squareSize)+halfSquareSize,10);
+                    do drawO(x+(j*squareSize)+halfSquareSize,y+(i*squareSize)+halfSquareSize+2,10);
                 }
                 let j = j+1;
             }
@@ -166,7 +182,7 @@ class Board{
         return;
     }
 
-method int modulo(int x, int y){
+    method int modulo(int x, int y){
         var int div;
         var int temp;
         var int result;

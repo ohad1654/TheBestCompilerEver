@@ -1,0 +1,77 @@
+class Logger{
+    field int topLeftX;
+    field int topLeftY;
+    field int bottomRightX;
+    field int bottomRightY;
+    field int BORDER_THICKNESS;
+    field int CHAR_WIDTH; //in pixels
+    field int CHAR_HEIGHT; //in pixels
+    field int FIRST_MESSAGE_ROW; // in which row messages will be written (0 => above top-border).
+    field int SECOND_MESSAGE_ROW;
+    field int MESSAGE_COL_SPACE;
+    
+
+    constructor Logger new(int AtopLeftX, int AtopLeftY, int AbottomRightX, int AbottomRightY) {
+        let topLeftX = AtopLeftX;
+        let topLeftY = AtopLeftY;
+        let bottomRightX = AbottomRightX;
+        let bottomRightY = AbottomRightY;
+        let CHAR_WIDTH = 8;
+        let CHAR_HEIGHT = 13;
+        let FIRST_MESSAGE_ROW = 2;
+        let SECOND_MESSAGE_ROW = 3;
+        let MESSAGE_COL_SPACE = 1;
+        let BORDER_THICKNESS = 3;
+        return this;
+    }
+
+    method void drawBorders(){
+        //draw horiazonal borders
+        do Screen.drawRectangle(topLeftX,topLeftY,bottomRightX,topLeftY + BORDER_THICKNESS);
+        do Screen.drawRectangle(topLeftX,bottomRightY - BORDER_THICKNESS,bottomRightX,bottomRightY);
+        //draw vertical bordres
+        do Screen.drawRectangle(topLeftX,topLeftY,topLeftX + BORDER_THICKNESS,bottomRightY);
+        do Screen.drawRectangle(bottomRightX-BORDER_THICKNESS,topLeftY,bottomRightX,bottomRightY);
+        return;
+    }
+
+    method void setCursor(int col_space, int row_space){
+        var int col;
+        var int row;
+        let col = Math.divide(topLeftX,CHAR_WIDTH) + col_space; 
+        let row = Math.divide(topLeftY,CHAR_HEIGHT)+ row_space;
+        do Output.moveCursor(row,col);
+        return;
+    }
+
+    method int getTurn(){
+        var int choise;
+        do setCursor(MESSAGE_COL_SPACE,FIRST_MESSAGE_ROW);
+        let choise = Keyboard.readInt("Choose your move (0-8):");
+        return choise;
+    }
+
+    method void printWinner(int winner){
+        do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
+        do Output.printString("The winner is player  ");
+        do Output.printInt(winner);
+        do Output.printString("!!!!!");
+        return;
+    }
+
+    method void printErrorSpotMessage(int choice){
+        do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
+        do Output.printString("Spot ");
+        do Output.printInt(choice);
+        do Output.printString(" is already occupied!!!!");
+        return; 
+    }
+
+    method void clearErrorMessage(){
+        do setCursor(MESSAGE_COL_SPACE,SECOND_MESSAGE_ROW);
+        do Output.printString("                                   ");
+        return;
+    }
+
+
+}

@@ -6,9 +6,9 @@
 class Main {
     function void main() {
         var TicTacTowGame game;
-        var String startGameMsg;
-        let startGameMsg = "Hello and welcome to The ultimate Tic-TacTow game!";
-        do Output.printString(startGameMsg);
+        //var String startGameMsg;
+        //let startGameMsg = "Hello and welcome to The ultimate Tic-TacTow game!";
+        //do Output.printString(startGameMsg);
         let game = TicTacTowGame.new();
         do game.run();
         do game.dispose();

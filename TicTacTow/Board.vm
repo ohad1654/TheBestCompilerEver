@@ -144,9 +144,121 @@ push temp 0
 pop that 0
 push constant 0
 return
-function Board.drawX 0
+function Board.drawX 2
 push argument 0
 pop pointer 0
+push argument 2
+push constant 32
+call Math.multiply 2
+push argument 1
+push constant 16
+call Math.divide 2
+add
+pop local 0
+push local 0
+push constant 16384
+add
+pop local 1
+push local 1
+push constant 0
+add
+push constant 16381
+neg
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+push constant 8185
+neg
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 64
+add
+push constant 28686
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 96
+add
+push constant 14364
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 128
+add
+push constant 7224
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 160
+add
+push constant 3696
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 192
+add
+push constant 2016
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 224
+add
+push constant 960
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 256
+add
+push constant 960
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 288
+add
+push constant 2016
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 320
+add
+push constant 3696
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 352
+add
+push constant 7224
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 384
+add
+push constant 14364
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 416
+add
+push constant 28686
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 448
+add
+push constant 8185
+neg
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 480
+add
+push constant 16381
+neg
+call Memory.poke 2
+pop temp 0
 push constant 0
 return
 function Board.drawO 0
@@ -273,10 +385,23 @@ if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
 push pointer 0
-push constant 100
-push constant 100
-push constant 40
-call Board.drawX 4
+push this 1
+push local 4
+push this 3
+call Math.multiply 2
+add
+push local 2
+add
+push this 2
+push local 3
+push this 3
+call Math.multiply 2
+add
+push local 2
+add
+push constant 5
+sub
+call Board.drawX 3
 pop temp 0
 label IF_FALSE0
 push local 1
@@ -299,6 +424,8 @@ push this 3
 call Math.multiply 2
 add
 push local 2
+add
+push constant 2
 add
 push constant 10
 call Board.drawO 4

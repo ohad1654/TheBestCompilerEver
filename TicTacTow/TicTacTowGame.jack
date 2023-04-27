@@ -3,14 +3,36 @@
  */
 class TicTacTowGame{
     field Board board;
-
+    field Logger logger;
     field int EMPTY_VAL;
     field int X_VAL;
     field int O_VAL;
+    field int SCREEN_WIDTH;
+    field int SCREEN_HEIGHT;
+    field int LOGGER_WIDTH;
+    field int LOGGER_HEIGHT;
+    field int LOGGER_SPACE_FROM_TOP;
+    field int SPACE_BET_LOGGER_BOARD;
+    method void constructLogger(){
+        var int x1,x2,y1,y2;
+        let x1 = Math.divide(SCREEN_WIDTH-LOGGER_WIDTH,2);
+        let x2 = x1 + LOGGER_WIDTH;
+        let y1 = LOGGER_SPACE_FROM_TOP;
+        let y2 = LOGGER_SPACE_FROM_TOP + LOGGER_HEIGHT;
+        let logger = Logger.new(x1,y1,x2,y2);
+        return;
+    }
 
     /** Constructs a new Square Game. */
    constructor TicTacTowGame new() {
-        let board = Board.new(150,50,50,3);
+        let SCREEN_HEIGHT = 255;
+        let SCREEN_WIDTH = 511;
+        let LOGGER_WIDTH = 300;
+        let LOGGER_HEIGHT = 45;
+        let LOGGER_SPACE_FROM_TOP = 5;
+        let SPACE_BET_LOGGER_BOARD = 40;
+        do constructLogger();
+        let board = Board.new(175,LOGGER_HEIGHT+LOGGER_SPACE_FROM_TOP+SPACE_BET_LOGGER_BOARD,50,3);
         let EMPTY_VAL = 0;
         let X_VAL = 1;
         let O_VAL = 2;
@@ -31,18 +53,17 @@ class TicTacTowGame{
         var int flag;
         var int fullSpotConter;
         
-
-
         let flag=1;
         let curruntPlayer = X_VAL;
-        do board.printBoard(5,10);
+        do board.drawBoard();
+        do logger.drawBorders();
         while ((winner=0) & (fullSpotConter<9)) {
-            let choice = Keyboard.readInt("Choose your move (0-8): ");
+            let choice = logger.getTurn();
             if (board.getVal(choice)=EMPTY_VAL){ //check if the chosen spot is empty
+                do logger.clearErrorMessage();
                 do board.setVal(choice,curruntPlayer);
                 let winner = calcWinner();
-
-                do board.printBoard(5,10);
+                do board.drawBoard();
                 let fullSpotConter = fullSpotConter + 1;
                 //switch the currentPlayer between 1-2-1-2-1-2.. 
                 let curruntPlayer = curruntPlayer+flag;
@@ -50,45 +71,42 @@ class TicTacTowGame{
             }
             else
             {
-                //TODO: invalid spot...
+                do logger.printErrorSpotMessage(choice);
             }
         }
-        do Output.printString("The winner is: ");
-        do Output.printInt(winner);
-
+        do logger.printWinner(winner);
         return;
    }
 
 
-method int calcWinner() {
-    var int i;
-    var int iMul3;
+    method int calcWinner() {
+        var int i;
+        var int iMul3;
 
-    while (i<3){
-        let iMul3 = Math.multiply(i,3);
-        if((board.getVal(iMul3) = board.getVal(iMul3+1))  &  (board.getVal(iMul3+1) = board.getVal(iMul3+2))){
-            return board.getVal(iMul3);
+        while (i<3){
+            let iMul3 = Math.multiply(i,3);
+            if((board.getVal(iMul3) = board.getVal(iMul3+1))  &  (board.getVal(iMul3+1) = board.getVal(iMul3+2))){
+                return board.getVal(iMul3);
+            }
+            if((board.getVal(i) = board.getVal(3+i))  &  (board.getVal(3+i) = board.getVal(6+i))){
+                return board.getVal(i);
+            }
+            let i = i + 1;
         }
 
-        if((board.getVal(i) = board.getVal(3+i))  &  (board.getVal(3+i) = board.getVal(6+i))){
-            return board.getVal(i);
+        //      0   1   2
+        //      3   4   5
+        //      6   7   8
+        if((board.getVal(0) = board.getVal(4))  &  (board.getVal(4) = board.getVal(8))){
+            return board.getVal(0);
         }
-        let i = i + 1;
+        if((board.getVal(2) = board.getVal(4))  &  (board.getVal(4) = board.getVal(6))){
+            return board.getVal(2);
+        }
+        return 0;
     }
 
-
-    //      0   1   2
-    //      3   4   5
-    //      6   7   8
-    if((board.getVal(0) = board.getVal(4))  &  (board.getVal(4) = board.getVal(8))){
-        return board.getVal(0);
-    }
-    if((board.getVal(2) = board.getVal(4))  &  (board.getVal(4) = board.getVal(6))){
-        return board.getVal(2);
-    }
-
-    return 0;
-}
+    
 
    
 }
