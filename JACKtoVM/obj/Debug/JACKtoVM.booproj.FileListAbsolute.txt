@@ -1,0 +1,9 @@
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\obj\Debug\JACKtoVM.booprojResolveAssemblyReference.cache
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\JACKtoVM.exe
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\JACKtoVM.pdb
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\Boo.Lang.Useful.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\Boo.Lang.Compiler.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\Boo.Lang.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\bin\Debug\Boo.Lang.Parser.dll
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\obj\Debug\JACKtoVM.exe
+C:\Users\user\Documents\SharpDevelop Projects\TheBestCompilerEver\JACKtoVM\obj\Debug\JACKtoVM.pdb
