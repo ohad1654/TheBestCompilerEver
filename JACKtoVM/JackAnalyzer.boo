@@ -5,6 +5,7 @@ import System.IO
 
 
 def main():
+
 	print "-----------------------------"
 	print "Hellllllllooooo!!!!!!!!"
 	print "Welcome to Best compiler ever"
@@ -19,18 +20,30 @@ def main():
 		
 		jackTokenizer = JackTokenizer(inputFileName) //the real name is "Jacky"! :)
 		tokensFile = File.CreateText(tokensFileName)
+		
+		tokensFile.WriteLine("<Tokens>")
 		while(jackTokenizer.hasMoreTokens()):
 			jackTokenizer.advance()
-			
-			
-			
-		
-		
-		
-		
-		
+			tokenType = jackTokenizer.tokenType()
+			if(tokenType == TokenType.KEYWORD):
+				keyword = jackTokenizer.keyWord()
+				tokensFile.WriteLine(createTag(tokenType,KeyWordConverter.toString(keyword)))
+			elif(tokenType == TokenType.SYMBOL):
+				symbol = jackTokenizer.symbol()
+				tokensFile.WriteLine(createTag(tokenType, symbol.ToString()))
+			elif(tokenType == TokenType.INT_CONST):
+				num = jackTokenizer.intVal()
+				tokensFile.WriteLine(createTag(tokenType, num.ToString()))
+			elif(tokenType == TokenType.STRING_CONST):
+				str = jackTokenizer.stringVal()
+				tokensFile.WriteLine(createTag(tokenType, str))
+			elif(tokenType == TokenType.IDENTIFIER):
+				varName = jackTokenizer.identifier()
+				tokensFile.WriteLine(createTag(tokenType, varName)) 
+		tokensFile.WriteLine("</Tokens>")
+		tokensFile.Close()
 		compilationEngine = CompilationEngine(inputFileName, tokensFileName)
-		compilationEngine.compileClass()			
+		compilationEngine.compileClass()
 
 
 
@@ -48,8 +61,8 @@ def pathToFileInfos(path as string) as (FileInfo):
 	
 
 
-
-
+def createTag(tagName as TokenType, val as string) as string:
+	return String.Format("<{0}> {1} </{0}>", tagName.ToString().ToLower(), val)
 
 main()
 print "Press any key to countinue..."

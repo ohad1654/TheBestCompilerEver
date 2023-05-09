@@ -1,19 +1,19 @@
 ﻿namespace JACKtoVM
 
 import System
-import System.IO
 
 class JackTokenizer:
 """Description of JackTokenizer"""
+	streamReader as StreamReader
 	
 	public def constructor(fileName as string):
-		pass
+		self.streamReader = StreamReader(fileName)
 	
 	public def hasMoreTokens() as bool:
-		pass
+		return return not streamReader.EndOfStream
 	
 	public def advance():
-		pass
+		
 		
 	public def tokenType() as TokenType:
 		pass
@@ -32,3 +32,6 @@ class JackTokenizer:
 	
 	public def stringVal() as string:
 		pass
+	
+	public def Close():
+		streamReader.Close()

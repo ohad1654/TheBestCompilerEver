@@ -6,4 +6,3 @@ enum TokenType:
 	INT_CONST;
 	STRING_CONST
 	
-	
