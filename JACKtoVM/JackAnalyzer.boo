@@ -42,6 +42,7 @@ def main():
 				tokensFile.WriteLine(createTag(tokenType, varName)) 
 		tokensFile.WriteLine("</Tokens>")
 		tokensFile.Close()
+		jackTokenizer.Close()
 		compilationEngine = CompilationEngine(inputFileName, tokensFileName)
 		compilationEngine.compileClass()
 
