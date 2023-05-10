@@ -1,8 +1,14 @@
 ﻿namespace JACKtoVM
 
+
+
 static class KeyWordConverter:
 """Description of KeyWordConverter"""
-	
+	public def getAllKeywords():
+		result =[]
+		for x in KeyWord.GetNames(KeyWord):
+			result+=[x.ToLower()]
+		return result
 	public def toString(keyWord as KeyWord) as string:
 		return keyWord.ToString().ToLower()
 	
@@ -49,7 +55,9 @@ static class KeyWordConverter:
                 return KeyWord.NULL
         if(keywordStr.ToUpper() == "THIS"):
                 return KeyWord.THIS
+    
 
+		
 		
 		
 enum KeyWord:

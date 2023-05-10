@@ -18,9 +18,13 @@ class JackTokenizer:
 		self.currentBuffer= ""
 		nextChar = Convert.ToChar(self.streamReader.Peek())
 		if(nextChar == -1): return
-		while (nextChar in [char(' '), char('\t'), char('\n'), char('\r')]):
+		while (Char.IsWhiteSpace(nextChar)):// in [char(' '), char('\t'), char('\n'), char('\r')]):
 			self.streamReader.Read() //skip the chareceter
-			nextChar = Convert.ToChar(self.streamReader.Peek())
+			a = self.streamReader.Peek()
+			if(a==-1):
+				currentType = TokenType.WHITESPACE
+				return
+			nextChar = a
 		if(Char.IsDigit(nextChar)):	//INT_CONST
 			while (Char.IsDigit(nextChar)): 
 				self.currentBuffer += Convert.ToChar(self.streamReader.Read())
@@ -39,32 +43,73 @@ class JackTokenizer:
 			self.streamReader.Read() // skips the ending "
 			currentType = TokenType.STRING_CONST
 			return
-		elif(nextChar == char('/')): //SYMBOL
+		elif(nextChar == char('/')): //SYMBOL or COMMENT
 			self.currentBuffer += Convert.ToChar(self.streamReader.Read())
 			nextChar = self.streamReader.Peek()
-			if (nextChar == char('/')): // COMMENT
-					self.streamReader.ReadLine()//skip the comment line
+			if (nextChar == char('/')): // COMMENT LINE
+				self.streamReader.ReadLine()//skip the comment line
 				currentType = TokenType.COMMENT
+			elif (nextChar == char('*')): //COMMENT BLOCK
+				self.streamReader.Read() // skips the begining " (should not be included in the token value
+				nextChar = self.streamReader.Read()
+				while (not (nextChar == char('*') and self.streamReader.Peek()== char('/'))):
+					nextChar = self.streamReader.Read()
+				self.streamReader.Read()
+				currentType = TokenType.COMMENT
+			else:
+				currentType = TokenType.SYMBOL
+		elif(Char.IsLetter(nextChar) or nextChar == char('_')):
+			self.currentBuffer += Convert.ToChar(self.streamReader.Read())
+			nextChar = self.streamReader.Peek()
+			while(Char.IsLetterOrDigit(nextChar) or nextChar == char('_')):
+				self.currentBuffer += Convert.ToChar(self.streamReader.Read())
+				nextChar = self.streamReader.Peek()
+			if(self.currentBuffer in KeyWordConverter.getAllKeywords()):
+				currentType = TokenType.KEYWORD
+			else:
+				currentType = TokenType.IDENTIFIER
+		else: //SYMBOL
+			self.currentBuffer += Convert.ToChar(self.streamReader.Read())
+			currentType = TokenType.SYMBOL
+		
 		
 	public def tokenType() as TokenType:
 		return currentType
 	
 	public def keyWord() as KeyWord:
-		pass
+		if(self.currentType != TokenType.KEYWORD):
+			raise "You called keyWord but its not KEYWORD token"
+		return KeyWordConverter.toKeyWord(self.currentBuffer)
 		
-	public def symbol() as char:
-		pass
+	public def symbol() as string:
+		if(self.currentType != TokenType.SYMBOL):
+			raise "You called symbol but its not SYMBOL token"
+		if(self.currentBuffer == '<'):
+			return "&lt;"
+		if(self.currentBuffer == '>'):
+			return "&gt;"
+		if(self.currentBuffer == '"'):
+			return "&quot;"
+		if(self.currentBuffer == '&'):
+			return "&amp;"
+		
+		return self.currentBuffer
 		
 	public def identifier() as string:
-		pass
+		if(self.currentType != TokenType.IDENTIFIER):
+			raise "You called identifier but its not IDENTIFIER token"
+		
+		return self.currentBuffer
 		
 	public def intVal() as int:
 		if(self.currentType != TokenType.INT_CONST):
-			raise "You called intVal but it it snnot INT_CONST command"
+			raise "You called intVal but its not INT_CONST token"
 		val = int.Parse(currentBuffer)
 		return val
 	
 	public def stringVal() as string:
+		if(self.currentType != TokenType.STRING_CONST):
+			raise "You called stringVal but its not STRING_CONST token"
 		return currentBuffer
 	
 	public def Close():

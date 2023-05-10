@@ -5,7 +5,6 @@ import System.IO
 
 
 def main():
-
 	print "-----------------------------"
 	print "Hellllllllooooo!!!!!!!!"
 	print "Welcome to Best compiler ever"
@@ -39,7 +38,8 @@ def main():
 				tokensFile.WriteLine(createTag(tokenType, str))
 			elif(tokenType == TokenType.IDENTIFIER):
 				varName = jackTokenizer.identifier()
-				tokensFile.WriteLine(createTag(tokenType, varName)) 
+				tokensFile.WriteLine(createTag(tokenType, varName))
+			
 		tokensFile.WriteLine("</Tokens>")
 		tokensFile.Close()
 		jackTokenizer.Close()
