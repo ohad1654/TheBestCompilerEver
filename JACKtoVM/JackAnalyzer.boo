@@ -15,12 +15,12 @@ def main():
 	
 	for file in files:
 		inputFileName = file.FullName
-		tokensFileName = Path.ChangeExtension(file.FullName,".xml")
+		tokensFileName = file.FullName.Replace(".jack","T.xml")
 		
 		jackTokenizer = JackTokenizer(inputFileName) //the real name is "Jacky"! :)
 		tokensFile = File.CreateText(tokensFileName)
 		
-		tokensFile.WriteLine("<Tokens>")
+		tokensFile.WriteLine("<tokens>")
 		while(jackTokenizer.hasMoreTokens()):
 			jackTokenizer.advance()
 			tokenType = jackTokenizer.tokenType()
@@ -40,7 +40,7 @@ def main():
 				varName = jackTokenizer.identifier()
 				tokensFile.WriteLine(createTag(tokenType, varName))
 			
-		tokensFile.WriteLine("</Tokens>")
+		tokensFile.WriteLine("</tokens>")
 		tokensFile.Close()
 		jackTokenizer.Close()
 		compilationEngine = CompilationEngine(inputFileName, tokensFileName)
@@ -63,7 +63,14 @@ def pathToFileInfos(path as string) as (FileInfo):
 
 
 def createTag(tagName as TokenType, val as string) as string:
-	return String.Format("<{0}> {1} </{0}>", tagName.ToString().ToLower(), val)
+	tag = TokenTypeConverter.toString(tagName)
+	val = formatStrToXML(val)
+	return String.Format("<{0}> {1} </{0}>", tag, val)
+
+def formatStrToXML(str as string) as string:
+	return str.Replace('&',"&amp;").Replace('<',"&lt;").Replace('>',"&gt;").Replace('"',"&quot;")
+	
+
 
 main()
 print "Press any key to countinue..."

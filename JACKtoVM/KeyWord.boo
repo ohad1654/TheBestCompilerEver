@@ -1,6 +1,6 @@
 ﻿namespace JACKtoVM
 
-
+import System
 
 static class KeyWordConverter:
 """Description of KeyWordConverter"""
@@ -9,10 +9,12 @@ static class KeyWordConverter:
 		for x in KeyWord.GetNames(KeyWord):
 			result+=[x.ToLower()]
 		return result
+	
 	public def toString(keyWord as KeyWord) as string:
 		return keyWord.ToString().ToLower()
 	
 	public def toKeyWord(keywordStr as string) as KeyWord:
+		// return Enum.Parse(KeyWord,keywordStr)
         if(keywordStr.ToUpper() == "CLASS"):
                 return KeyWord.CLASS
         if(keywordStr.ToUpper() == "METHOD"):

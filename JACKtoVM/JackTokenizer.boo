@@ -81,19 +81,10 @@ class JackTokenizer:
 			raise "You called keyWord but its not KEYWORD token"
 		return KeyWordConverter.toKeyWord(self.currentBuffer)
 		
-	public def symbol() as string:
+	public def symbol() as char:
 		if(self.currentType != TokenType.SYMBOL):
-			raise "You called symbol but its not SYMBOL token"
-		if(self.currentBuffer == '<'):
-			return "&lt;"
-		if(self.currentBuffer == '>'):
-			return "&gt;"
-		if(self.currentBuffer == '"'):
-			return "&quot;"
-		if(self.currentBuffer == '&'):
-			return "&amp;"
-		
-		return self.currentBuffer
+			raise "You called symbol but its not SYMBOL token"		
+		return self.currentBuffer[0]
 		
 	public def identifier() as string:
 		if(self.currentType != TokenType.IDENTIFIER):
