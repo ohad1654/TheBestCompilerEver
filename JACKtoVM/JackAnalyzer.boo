@@ -43,8 +43,15 @@ def main():
 		tokensFile.WriteLine("</tokens>")
 		tokensFile.Close()
 		jackTokenizer.Close()
-		compilationEngine = CompilationEngine(inputFileName, tokensFileName)
-		compilationEngine.compileClass()
+		compilationEngine = CompilationEngine(tokensFileName, tokensFileName+".xml")
+		try:
+			compilationEngine.compileClass()
+		except E:
+			compilationEngine.Close()
+			print tokensFileName
+			raise E
+		
+		compilationEngine.Close()
 
 
 

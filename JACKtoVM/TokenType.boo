@@ -18,7 +18,7 @@ static class TokenTypeConverter:
 		if(tokenTypeStr == "stringConstant"):
 			return TokenType.STRING_CONST
 		
-		return Enum.Parse(TokenType,tokenTypeStr)
+		return Enum.Parse(TokenType,tokenTypeStr.ToUpper())
     
 	
 
