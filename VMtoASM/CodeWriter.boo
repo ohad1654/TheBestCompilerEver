@@ -10,14 +10,15 @@ class CodeWriter:
 	private relOpLabelCounter = 0
 	private callLabbelCounter=0
 	
-	public def constructor(fileName as string):
+	public def constructor(fileName as string, isFolder as bool):
 		self.outputFile = File.CreateText(fileName)
-		self.WriteLine("//Bootstrap code")
-		self.WriteLine("@256")
-		self.WriteLine("D = A")
-		self.WriteLine("@SP")
-		self.WriteLine("M = D")
-		self.writeCall("Sys.init",0)
+		if(isFolder):
+			self.WriteLine("//Bootstrap code")
+			self.WriteLine("@256")
+			self.WriteLine("D = A")
+			self.WriteLine("@SP")
+			self.WriteLine("M = D")
+			self.writeCall("Sys.init",0)
 		
 	public def setFileName(fileName as string):
 		self.className=fileName		

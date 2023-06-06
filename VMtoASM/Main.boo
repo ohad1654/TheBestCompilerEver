@@ -3,22 +3,22 @@
 import System
 import System.IO
 
-
 def main():
 	print "-----------------------------"
 	print "Hellllllllooooo!!!!!!!!"
 	print "Welcome to Best compiler ever"
+	print "VM-->ASM"
 	print "-----------------------------"
 	print "Enter path to directory please: "
 	path = Console.ReadLine()
 	Files as (FileInfo)
 	if (Path.GetExtension(path)==".vm"):
 		Files= [FileInfo(path)].ToArray(FileInfo)
-		codeWriter = CodeWriter(Path.ChangeExtension(path,".asm"))
+		codeWriter = CodeWriter(Path.ChangeExtension(path,".asm"), false)
 	elif Path.GetExtension(path)=="":// path is directory
 		d = DirectoryInfo(path);	
 		Files = d.GetFiles("*.vm"); //Getting all .vm files
-		codeWriter = CodeWriter(d.FullName + "\\" + d.Name + ".asm")
+		codeWriter = CodeWriter(d.FullName + "\\" + d.Name + ".asm", true)
 	else:
 		raise "Invalid path or file type"
 	

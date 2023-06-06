@@ -5,17 +5,21 @@ import System.IO
 
 
 def main():
+	FILE_SIGN = "_SOLUTION"
+	T_XML_EXTENSION = "T"+FILE_SIGN +".xml"
+	XML_EXTENSION = FILE_SIGN +".xml"
 	print "-----------------------------"
 	print "Hellllllllooooo!!!!!!!!"
 	print "Welcome to Best compiler ever"
+	print "JACK-->VM"
 	print "-----------------------------"
 	print "Enter path to directory please: "
 	path = Console.ReadLine()
 	files = pathToFileInfos(path)
-	
+
 	for file in files:
 		inputFileName = file.FullName
-		tokensFileName = file.FullName.Replace(".jack","T.xml")
+		tokensFileName = file.FullName.Replace(".jack",T_XML_EXTENSION)
 		
 		jackTokenizer = JackTokenizer(inputFileName) //the real name is "Jacky"! :)
 		tokensFile = File.CreateText(tokensFileName)
@@ -43,7 +47,8 @@ def main():
 		tokensFile.WriteLine("</tokens>")
 		tokensFile.Close()
 		jackTokenizer.Close()
-		compilationEngine = CompilationEngine(tokensFileName, tokensFileName+".xml")
+		print tokensFileName.Replace(T_XML_EXTENSION,XML_EXTENSION)
+		compilationEngine = CompilationEngine(tokensFileName, tokensFileName.Replace(T_XML_EXTENSION,XML_EXTENSION))
 		try:
 			compilationEngine.compileClass()
 		except E:
