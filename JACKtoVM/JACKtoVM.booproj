@@ -47,9 +47,11 @@
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="CompilationEngine.boo" />
     <Compile Include="KeyWord.boo" />
+    <Compile Include="Kind.boo" />
     <Compile Include="TokenType.boo" />
     <Compile Include="JackAnalyzer.boo" />
     <Compile Include="JackTokenizer.boo" />
+    <Compile Include="SymbolTable.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>
