@@ -50,6 +50,7 @@
     <Compile Include="TokenType.boo" />
     <Compile Include="JackAnalyzer.boo" />
     <Compile Include="JackTokenizer.boo" />
+    <Compile Include="VMWriter.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>
