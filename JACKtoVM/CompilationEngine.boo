@@ -176,6 +176,9 @@ class CompilationEngine:
 		// ('constructor' | 'function' | 'method') ('void' | type) subroutineName '(' parameterList ')' subroutineBody
 		self.Write("<subroutineDec>")
 		indent+=1
+		
+		functionSt.reset()
+		
 		//('constructor' | 'function' | 'method')
 		if(checkNextMulti(TokenType.KEYWORD, [KeyWord.CONSTRUCTOR, KeyWord.FUNCTION, KeyWord.METHOD])):
 			advance()
