@@ -28,6 +28,8 @@ class SymbolTable:
 			indexes.Add(0)
 	
 	public def define(name as string, type as string, kind as Kind):
+		name = name.Trim() // " Square " -> "Square" because of Currrent.Value
+		type = type.Trim()
 		typeMap.Add(name, type)
 		kindMap.Add(name,kind)
 		indexMap.Add(name,indexes[kind])

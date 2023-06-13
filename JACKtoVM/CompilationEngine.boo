@@ -9,12 +9,19 @@ class CompilationEngine:
 """Description of CompilationEngine"""
 	tokensList as IEnumerator[of XElement]
 	outputFile as StreamWriter
+	classSt as SymbolTable
+	functionSt as SymbolTable
+	routineSt as SymbolTable
+	
 	indent as int
 
 	public def constructor(inputFileName as string, outputFileName as string):	
 		self.tokensList = XElement.Load(inputFileName).Elements().GetEnumerator()
 		self.tokensList.MoveNext()
 		self.outputFile = File.CreateText(outputFileName)
+		self.classSt = SymbolTable()
+		self.functionSt = SymbolTable()
+
 		
 	public def Close():
 		outputFile.Close()
@@ -22,11 +29,21 @@ class CompilationEngine:
 	private def Write(line as string):
 		outputFile.WriteLine("  "*indent + line)
 	
+	private def IDtoSegmentIndex(id as string) as string:
+		if (self.functionSt.kindOf(id) != null):
+			return functionSt.kindOf(id) + " " + functionSt.indexOf(id)
+		elif (self.classSt.kindOf(id) != null):
+			return classSt.kindOf(id) + " " + classSt.indexOf(id)
+		else:
+			return id// raise "IDENTIFIER " + id + " was not found on symbol tables"
+	
 	
 	public def advance():
 	"""Just write the current XElement and advance the tokenList"""
-		self.Write(tokensList.Current.ToString())
-		
+		if (self.checkNext(TokenType.IDENTIFIER,null)):
+			self.Write("<identifier> "+ IDtoSegmentIndex(tokensList.Current.Value.Trim())+" </identifier>")		
+		else: 
+			self.Write(tokensList.Current.ToString())
 		tokensList.MoveNext()
 	
 	private def process(shouldBeType as TokenType, shouldBeVal):
@@ -118,22 +135,36 @@ class CompilationEngine:
 		//('static' | 'field') type varName (',' varName)* ';'
 		self.Write("<classVarDec>")
 		indent+=1
-		
+		type as string
+		kind as Kind
 		//('static' | 'field')
 		if(checkNextMulti(TokenType.KEYWORD, [KeyWord.STATIC, KeyWord.FIELD])):
+			if(checkNext(TokenType.KEYWORD, KeyWord.STATIC)):
+				kind = Kind.STATIC
+			else:
+				kind = Kind.FIELD
 			advance()
 		else:
 			raise "Unexcepted token: " + tokensList.Current.ToString() +", should be static or field!"
 		//type
 		if(isType()):
+			type = tokensList.Current.Value
 			advance()
 		else:
 			raise "Unexcepted token: " + tokensList.Current.ToString() + ", should be type!"
 		//varName
+		if(checkNext(TokenType.IDENTIFIER,null)):
+			classSt.define(tokensList.Current.Value, type, kind)
+		else:
+			raise "No identifier name"
 		process(TokenType.IDENTIFIER,null) 
 		//(',' varName)*
 		while(checkNext(TokenType.SYMBOL,",")):
 			advance()
+			if(checkNext(TokenType.IDENTIFIER,null)):
+				classSt.define(tokensList.Current.Value, type, kind)
+			else:
+				raise "No identifier name"
 			process(TokenType.IDENTIFIER,null)
 		//';'
 		process(TokenType.SYMBOL,';')
@@ -172,13 +203,18 @@ class CompilationEngine:
 		indent+=1
 		//(type varName)
 		if(isType()):
+			type = tokensList.Current.Value
 			advance()
+			if(checkNext(TokenType.IDENTIFIER, null)):
+				classSt.define(tokensList.Current.Value, type, Kind.ARG)
 			process(TokenType.IDENTIFIER,null)
 			//(',' type varName)*
 			while(checkNext(TokenType.SYMBOL,",")):
 				advance()
 				if(isType()):
 					advance()
+				if(checkNext(TokenType.IDENTIFIER, null)):
+					classSt.define(tokensList.Current.Value, type, Kind.ARG)
 				else:
 					raise "Unexcepted token: " + tokensList.Current.ToString() + ", should be type!"
 				process(TokenType.IDENTIFIER,null)
@@ -206,19 +242,22 @@ class CompilationEngine:
 		// 'var' type varName (',' varName)* ';'
 		self.Write("<varDec>")
 		indent+=1
-		
+		type as string
 		//'var'
 		process(TokenType.KEYWORD,KeyWord.VAR)
 		//type
 		if(isType()):
+			type = tokensList.Current.Value
 			advance()
 		else:
 			raise "Unexcepted token: " + tokensList.Current.ToString() + ", should be type!"
 		//varName
+		functionSt.define(tokensList.Current.Value,type, Kind.VAR)
 		process(TokenType.IDENTIFIER,null)
 		//(',' varName)*
 		while(checkNext(TokenType.SYMBOL,",")):
 			advance()
+			functionSt.define(tokensList.Current.Value,type, Kind.VAR)
 			process(TokenType.IDENTIFIER,null)
 		//';'
 		process(TokenType.SYMBOL,';')
