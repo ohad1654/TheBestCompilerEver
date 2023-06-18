@@ -16,13 +16,35 @@ class VMWriter:
 	public def writePop(segment as string, index as int):
 		outputFile.WriteLine("pop " + segment + " " + index)
 		
-	public def writeArithmetic(command as string):
-		if command not in ["add","sub","neg","eq","gt","lt","and","or","not"]:
-			raise command+" is not vaild command!"
-		outputFile.WriteLine(command)
+	public def writeArithmetic(op as string, isUnary as bool):
+		if(op=="+"):
+			outputFile.WriteLine("add")
+		if(op=="-" and not isUnary):
+			outputFile.WriteLine("sub")
+		if(op=="*"):
+			outputFile.WriteLine("call Math.multiply 2")
+		if(op=="/"):
+			outputFile.WriteLine("call Math.divide 2")
+		if(op=="&"):
+			outputFile.WriteLine("and")
+		if(op=="|"):
+			outputFile.WriteLine("or")
+		if(op=="<"):
+			outputFile.WriteLine("lt") //BECAREFUL MAYBE its gt
+		if(op==">"):
+			outputFile.WriteLine("gt")
+		if(op=="="):
+			outputFile.WriteLine("eq")
+		if(op=="~"):
+			outputFile.WriteLine("not")
+		if(op=="-" and isUnary):
+			outputFile.WriteLine("neg")
+		if(not(op in ["+","-","*","/","&","|","<",">","=","~","-"])):
+			raise op + " is not vaild command!"
+			
 			
 	public def writeLabel(label as string):
-		outputFile.WriteLine(label)
+		outputFile.WriteLine("label "+label)
 		
 	public def writeGoto(lable as string):
 		outputFile.WriteLine("goto "+ lable)
@@ -39,4 +61,5 @@ class VMWriter:
 	public def writeReturn():
 		outputFile.WriteLine("return")
 	
-	
+	public def Close():
+		outputFile.Close()

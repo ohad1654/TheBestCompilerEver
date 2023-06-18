@@ -5,7 +5,7 @@ import System.IO
 
 
 def main():
-	FILE_SIGN = "_SOLUTION"
+	FILE_SIGN = ""
 	T_XML_EXTENSION = "T"+FILE_SIGN +".xml"
 	XML_EXTENSION = FILE_SIGN +".xml"
 	print "-----------------------------"
@@ -49,11 +49,13 @@ def main():
 		jackTokenizer.Close()
 		print tokensFileName.Replace(T_XML_EXTENSION,XML_EXTENSION)
 		compilationEngine = CompilationEngine(tokensFileName, tokensFileName.Replace(T_XML_EXTENSION,XML_EXTENSION))
+		compilationEngine.compileClass()
 		try:
-			compilationEngine.compileClass()
+			//compilationEngine.compileClass()
+			pass
 		except E:
 			compilationEngine.Close()
-			print tokensFileName
+			print "Bad file: " + tokensFileName
 			raise E
 		
 		compilationEngine.Close()
