@@ -86,7 +86,7 @@ pop temp 0
 push this 1
 call Logger.printBoard 1
 pop temp 0
-label WHILE_EXP0
+label WHILE_START0
 push local 0
 push constant 0
 eq
@@ -105,9 +105,8 @@ push local 2
 call Board.getVal 2
 push this 2
 eq
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
+not
+if-goto FALSE0
 push this 1
 call Logger.clearErrorMessage 1
 pop temp 0
@@ -135,14 +134,14 @@ push constant 1
 neg
 call Math.multiply 2
 pop local 3
-goto IF_END0
-label IF_FALSE0
+goto ENDIF0
+label FALSE0
 push this 1
 push local 2
 call Logger.printErrorSpotMessage 2
 pop temp 0
-label IF_END0
-goto WHILE_EXP0
+label ENDIF0
+goto WHILE_START0
 label WHILE_END0
 push this 1
 push local 0
@@ -153,12 +152,12 @@ return
 function TicTacTowGame.calcWinner 2
 push argument 0
 pop pointer 0
-label WHILE_EXP0
+label WHILE_START1
 push local 0
 push constant 3
 lt
 not
-if-goto WHILE_END0
+if-goto WHILE_END1
 push local 0
 push constant 3
 call Math.multiply 2
@@ -184,14 +183,15 @@ add
 call Board.getVal 2
 eq
 and
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
+not
+if-goto FALSE1
 push this 0
 push local 1
 call Board.getVal 2
 return
-label IF_FALSE0
+goto ENDIF1
+label FALSE1
+label ENDIF1
 push this 0
 push local 0
 call Board.getVal 2
@@ -213,20 +213,21 @@ add
 call Board.getVal 2
 eq
 and
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
+not
+if-goto FALSE2
 push this 0
 push local 0
 call Board.getVal 2
 return
-label IF_FALSE1
+goto ENDIF2
+label FALSE2
+label ENDIF2
 push local 0
 push constant 1
 add
 pop local 0
-goto WHILE_EXP0
-label WHILE_END0
+goto WHILE_START1
+label WHILE_END1
 push this 0
 push constant 0
 call Board.getVal 2
@@ -242,14 +243,15 @@ push constant 8
 call Board.getVal 2
 eq
 and
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
+not
+if-goto FALSE3
 push this 0
 push constant 0
 call Board.getVal 2
 return
-label IF_FALSE2
+goto ENDIF3
+label FALSE3
+label ENDIF3
 push this 0
 push constant 2
 call Board.getVal 2
@@ -265,13 +267,14 @@ push constant 6
 call Board.getVal 2
 eq
 and
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
+not
+if-goto FALSE4
 push this 0
 push constant 2
 call Board.getVal 2
 return
-label IF_FALSE3
+goto ENDIF4
+label FALSE4
+label ENDIF4
 push constant 0
 return

@@ -25,7 +25,7 @@ class CompilationEngine:
 
 
 	public def constructor(inputFileName as string, outputFileName as string):	
-		self.tokensList = XElement.Load(inputFileName).Elements().GetEnumerator()
+		self.tokensList = XElement.Load(inputFileName,LoadOptions.PreserveWhitespace).Elements().GetEnumerator()
 		self.tokensList.MoveNext()
 		self.outputFile = File.CreateText(outputFileName)
 		self.classSt = SymbolTable()
@@ -363,21 +363,32 @@ class CompilationEngine:
 			advance()
 		// ('[' expression ']')?
 		if(checkNext(TokenType.SYMBOL,"[")):
-			raise "Arrays not implomenteded yet!"
+			vmWriter.writePush(getSegment(id),getIndex(id)) //push arr
 			//'['
 			advance()
 			//expression
-			compileExpression()
+			compileExpression() //vm: exp1
 			//']'
 			process(TokenType.SYMBOL,"]")
-		// '='
-		process(TokenType.SYMBOL,"=")
-		// expression
-		compileExpression()
-		vmWriter.writePop(getSegment(id),getIndex(id)) //vm: save the calculated expression into varName
+			
+			vmWriter.writeArithmetic("+",false) //vm: add
+			// '='
+			process(TokenType.SYMBOL, "=")
+			compileExpression()// vm: exp2
+			vmWriter.writePop("temp",0) //temp0=exp2
+			vmWriter.writePop("pointer",1) //that=arr+exp1
+			vmWriter.writePush("temp",0)
+			vmWriter.writePop("that",0)
+			
+		else:			
+			// '='
+			process(TokenType.SYMBOL,"=")
+			// expression
+			compileExpression()
+			vmWriter.writePop(getSegment(id),getIndex(id)) //vm: save the calculated expression into varName
 		// ';'
 		process(TokenType.SYMBOL,";")
-		
+			
 		indent-=1
 		self.Write("</letStatement>")
 
@@ -433,6 +444,7 @@ class CompilationEngine:
 		self.Write("<whileStatement>")
 		indent+=1
 		whileLocalCounter=whilesCounter
+		whilesCounter+=1
 		vmWriter.writeLabel("WHILE_START"+whileLocalCounter) //vm: lable the start of the while statmant	
 		// 'while'
 		process(TokenType.KEYWORD,KeyWord.WHILE)
@@ -453,9 +465,9 @@ class CompilationEngine:
 		vmWriter.writeGoto("WHILE_START"+whileLocalCounter)
 		// '}'
 		process(TokenType.SYMBOL,"}")
-		vmWriter.writeLabel("WHILE_END"+whilesCounter) //vm: lable the end of the while statmant
+		vmWriter.writeLabel("WHILE_END"+whileLocalCounter) //vm: lable the end of the while statmant
 		
-		whilesCounter+=1
+		
 		indent-=1
 		self.Write("</whileStatement>")
 	
@@ -473,8 +485,6 @@ class CompilationEngine:
 		id = ""
 		if(checkNext(TokenType.IDENTIFIER,null)):
 			id=getCurrentToken()
-			if(id=="Screen"):
-				a=1
 			advance()
 		else:
 			raise "Excpeted function name, got: "+getCurrentToken()
@@ -565,6 +575,13 @@ class CompilationEngine:
 			advance()
 		//stringConstant 
 		elif(checkNext(TokenType.STRING_CONST,null)):
+			str as string=tokensList.Current.Value
+			str=str.Substring(1,str.Length-2) //remove spaces around the token value
+			vmWriter.writePush("constant",str.Length)
+			vmWriter.writeCall("String.new",1)
+			for c in str:
+				vmWriter.writePush("constant",Convert.ToInt32(c))
+				vmWriter.writeCall("String.appendChar",2)
 			advance()
 		// keyWordConstant
 		elif(checkNextMulti(TokenType.KEYWORD,[KeyWord.TRUE, KeyWord.FALSE ,KeyWord.NULL ,KeyWord.THIS])):
@@ -584,13 +601,16 @@ class CompilationEngine:
 		   	advance()
 		   	//('[' expression ']')?
 		   	if(checkNext(TokenType.SYMBOL, "[")): //vm: it's id1[exp]
-		   		raise "Arrays not implomenteded yet!"
+		   		vmWriter.writePush(getSegment(id),getIndex(id))//arr
 		   		//'['
 		   		advance()
 		   		//expression
 		   		compileExpression()
 		   		//']'
 		   		process(TokenType.SYMBOL,"]")
+		   		vmWriter.writeArithmetic("+",false)
+		   		vmWriter.writePop("pointer",1)
+		   		vmWriter.writePush("that",0)
 	   		//((.ID)? '(' expressionList ')')
 		   	else:
 		   		//(.ID)?
